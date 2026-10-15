@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* Tallyard: warm paper surfaces, deep teal for actions, amber as the signal colour
+   (what needs attention), and a mono face for codes and quantities. */
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-paper: #f5f3ee;
+  --color-surface: #ffffff;
+  --color-sunken: #efece5;
+  --color-line: #e3dfd5;
+  --color-line-strong: #cfc9bb;
+  --color-ink: #18222c;
+  --color-ink-2: #3a4652;
+  --color-muted: #6b7480;
+  --color-faint: #98a0a9;
+
+  --color-brand: #0e5e5e;
+  --color-brand-hover: #0b4d4d;
+  --color-brand-soft: #e3efed;
+  --color-brand-ink: #0a4545;
+
+  --color-signal: #f2a541;
+  --color-signal-soft: #fdf1dc;
+  --color-signal-ink: #8a5208;
+
+  --color-danger: #b4441c;
+  --color-danger-soft: #fbe9e1;
+  --color-ok: #2f7d4f;
+  --color-ok-soft: #e4f2e8;
+
+  --color-rail: #142028;
+  --color-rail-2: #1c2b35;
+  --color-rail-ink: #b9c5cd;
+}
+
+@layer base {
+  html { background: var(--color-paper); color: var(--color-ink); }
+  body { font-family: var(--font-sans); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--color-signal-soft); }
+  :focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; border-radius: 4px; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-[13.5px] font-medium
+           border border-line-strong bg-surface text-ink-2 transition-colors select-none whitespace-nowrap
+           hover:bg-sunken disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary { @apply bg-brand border-brand text-white hover:bg-brand-hover; }
+  .btn-ghost { @apply border-transparent bg-transparent hover:bg-sunken; }
+  .btn-danger { @apply text-danger border-danger/30 hover:bg-danger-soft; }
+  .btn-sm { @apply h-8 px-2.5 text-[13px]; }
+
+  .field { @apply flex flex-col gap-1.5 min-w-0; }
+  .label { @apply text-[12.5px] font-medium text-ink-2; }
+  .hint { @apply text-[12px] text-muted; }
+  .error { @apply text-[12px] text-danger; }
+  .input {
+    @apply h-9 w-full rounded-lg border border-line-strong bg-surface px-3 text-[14px] text-ink
+           placeholder:text-faint transition-shadow
+           focus:outline-none focus:border-brand focus:ring-3 focus:ring-brand/15;
+  }
+  textarea.input { @apply h-auto py-2 min-h-20; }
+  .input.invalid { @apply border-danger focus:ring-danger/15; }
+  .input-mono { @apply font-mono text-[13px]; }
+
+  .card { @apply bg-surface border border-line rounded-xl; }
+  .card-head { @apply flex items-center justify-between gap-3 px-5 py-3.5 border-b border-line; }
+  .card-title { @apply text-[14px] font-semibold text-ink; }
+
+  .page { @apply mx-auto w-full max-w-[1280px] px-4 sm:px-8 py-6 sm:py-8; }
+  .page-narrow { @apply mx-auto w-full max-w-[880px] px-4 sm:px-8 py-6 sm:py-8; }
+  .page-head { @apply flex flex-wrap items-end justify-between gap-4 mb-6; }
+  .eyebrow { @apply text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted; }
+  .h1 { @apply text-[24px] font-semibold tracking-[-0.01em] text-ink; }
+
+  .tbl { @apply w-full text-left border-collapse; }
+  .tbl th { @apply px-4 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-muted bg-sunken/60 border-b border-line whitespace-nowrap; }
+  .tbl td { @apply px-4 py-2.5 border-b border-line text-[13.5px] align-middle; }
+  .tbl tbody tr { @apply transition-colors; }
+  .tbl tbody tr.clickable { @apply cursor-pointer hover:bg-paper; }
+  .tbl tbody tr:last-child td { @apply border-b-0; }
+  .num { @apply font-mono text-[13px] tabular-nums text-right; }
+  .code { @apply font-mono text-[12.5px] text-ink-2; }
+
+  .badge { @apply inline-flex items-center gap-1 h-5.5 px-2 rounded-md text-[11.5px] font-medium whitespace-nowrap; }
+  .badge-muted { @apply bg-sunken text-ink-2; }
+  .badge-brand { @apply bg-brand-soft text-brand-ink; }
+  .badge-signal { @apply bg-signal-soft text-signal-ink; }
+  .badge-ok { @apply bg-ok-soft text-ok; }
+  .badge-danger { @apply bg-danger-soft text-danger; }
+
+  .check { @apply size-4 rounded border-line-strong accent-brand; }
+}

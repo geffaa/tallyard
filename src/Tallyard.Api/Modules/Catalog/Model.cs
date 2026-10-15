@@ -29,19 +29,29 @@ public class Product : TenantEntity, IAudited
 }
 
 /// <summary>An alternative unit: 1 <see cref="Name"/> = <see cref="Factor"/> base units (1 case = 24 pcs).</summary>
-public class ProductUnit : Entity, ITenantOwned
+public class ProductUnit : Entity, ITenantOwned, IAuditedChild
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }
     public required string Name { get; set; }
     public decimal Factor { get; set; }
+
+    Guid IAuditedChild.AuditParentId => ProductId;
+    string IAuditedChild.AuditParentType => nameof(Product);
+    string IAuditedChild.AuditField => $"unit {Name}";
+    object? IAuditedChild.AuditValue => Factor;
 }
 
 /// <summary>A scannable code. It may stand for a pack (a case barcode), given by <see cref="Unit"/>.</summary>
-public class ProductBarcode : Entity, ITenantOwned
+public class ProductBarcode : Entity, ITenantOwned, IAuditedChild
 {
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }
     public required string Code { get; set; }
     public string? Unit { get; set; }
+
+    Guid IAuditedChild.AuditParentId => ProductId;
+    string IAuditedChild.AuditParentType => nameof(Product);
+    string IAuditedChild.AuditField => $"barcode {Code}";
+    object? IAuditedChild.AuditValue => Unit;
 }

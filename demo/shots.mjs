@@ -1,0 +1,20 @@
+// Screenshots of each screen, for visual review: node shots.mjs [baseUrl]
+import puppeteer from 'puppeteer-core';
+const base = process.argv[2] ?? 'http://localhost:5080';
+const out = process.env.OUT ?? 'out/shots';
+const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', defaultViewport: { width: 1440, height: 900, deviceScaleFactor: 1 } });
+const page = await browser.newPage();
+const shot = async (name) => { await new Promise(r => setTimeout(r, 700)); await page.screenshot({ path: `${out}/${name}.png` }); };
+await page.goto(base + '/login'); await shot('01-login');
+await page.click('button.btn-primary'); await page.waitForNavigation();
+await page.goto(base + '/products'); await shot('02-products');
+const first = await page.$('tbody tr.clickable'); await first.click(); await shot('03-product');
+await page.goto(base + '/products'); await page.waitForSelector('tbody tr.clickable'); await page.type('input[placeholder]', 'choclate'); await shot('04-search');
+await page.goto(base + '/warehouses'); await shot('05-warehouses');
+await page.goto(base + '/customers'); await page.waitForSelector('tbody tr.clickable'); await shot('06-customers');
+(await page.$('tbody tr.clickable')).click(); await shot('07-customer-sheet');
+await page.goto(base + '/users'); await shot('08-users');
+await page.goto(base + '/audit'); await shot('09-audit');
+await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 1 });
+await page.goto(base + '/products'); await shot('10-mobile');
+await browser.close();

@@ -31,32 +31,66 @@ public sealed class AuditInterceptor(CurrentUser user) : SaveChangesInterceptor
     void Record(DbContext db)
     {
         var now = DateTimeOffset.UtcNow;
-        var logs = new List<AuditLog>();
-        foreach (var entry in db.ChangeTracker.Entries().ToList())
+        var logs = new Dictionary<(string Type, Guid Id), (AuditLog Log, Dictionary<string, object?[]> Changes)>();
+        var entries = db.ChangeTracker.Entries().ToList();
+
+        foreach (var entry in entries)
         {
             if (entry.State is not (EntityState.Added or EntityState.Modified or EntityState.Deleted)) continue;
             if (entry.Entity is TenantEntity t && entry.State == EntityState.Modified) t.UpdatedAt = now;
             if (entry.Entity is not IAudited || entry.Entity is not Entity e) continue;
-
             var changes = Changes(entry);
             if (entry.State == EntityState.Modified && changes.Count == 0) continue;
-            logs.Add(new AuditLog
-            {
-                CreatedAt = now,
-                TenantId = ((ITenantOwned)entry.Entity).TenantId,
-                UserId = user.UserId,
-                Action = entry.State switch
-                {
-                    EntityState.Added => "created",
-                    EntityState.Deleted => "deleted",
-                    _ => "updated",
-                },
-                EntityType = entry.Metadata.ClrType.Name,
-                EntityId = e.Id,
-                Changes = JsonSerializer.Serialize(changes),
-            });
+            logs[(entry.Metadata.ClrType.Name, e.Id)] = (NewLog(entry, e.Id, Action(entry.State), now), changes);
         }
-        db.Set<AuditLog>().AddRange(logs);
+
+        // Child rows become fields on the parent's entry ("barcode 0123…": [before, after]).
+        foreach (var entry in entries)
+        {
+            if (entry.Entity is not IAuditedChild child) continue;
+            if (entry.State is not (EntityState.Added or EntityState.Modified or EntityState.Deleted)) continue;
+            var key = (child.AuditParentType, child.AuditParentId);
+            if (!logs.TryGetValue(key, out var parent))
+            {
+                parent = (NewLog(entry, child.AuditParentId, "updated", now, child.AuditParentType), new());
+                logs[key] = parent;
+            }
+            var before = entry.State == EntityState.Added ? null : Original(entry);
+            var after = entry.State == EntityState.Deleted ? null : child.AuditValue;
+            if (entry.State == EntityState.Modified && Equals(before, after)) continue;
+            parent.Changes[child.AuditField] = [before, after];
+        }
+
+        foreach (var (log, changes) in logs.Values.Where(l => l.Changes.Count > 0 || l.Log.Action != "updated"))
+        {
+            log.Changes = JsonSerializer.Serialize(changes);
+            db.Set<AuditLog>().Add(log);
+        }
+    }
+
+    AuditLog NewLog(EntityEntry entry, Guid entityId, string action, DateTimeOffset now, string? type = null) => new()
+    {
+        CreatedAt = now,
+        TenantId = ((ITenantOwned)entry.Entity).TenantId,
+        UserId = user.UserId,
+        Action = action,
+        EntityType = type ?? entry.Metadata.ClrType.Name,
+        EntityId = entityId,
+        Changes = "{}",
+    };
+
+    static string Action(EntityState state) => state switch
+    {
+        EntityState.Added => "created",
+        EntityState.Deleted => "deleted",
+        _ => "updated",
+    };
+
+    // The child's value as it was loaded: a copy of the entity with original values applied.
+    static object? Original(EntityEntry entry)
+    {
+        var copy = (IAuditedChild)entry.OriginalValues.ToObject();
+        return copy.AuditValue;
     }
 
     static Dictionary<string, object?[]> Changes(EntityEntry entry)

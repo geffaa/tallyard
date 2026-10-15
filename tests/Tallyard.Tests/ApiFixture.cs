@@ -47,6 +47,8 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
     {
         builder.UseSetting("ConnectionStrings:App", AppConnection);
         builder.UseSetting("ConnectionStrings:Owner", OwnerConnection);
+        // Every test signs in; the per-IP login limit is covered by its own test.
+        builder.UseSetting("Security:LoginAttemptsPerMinute", "1000");
     }
 
     /// <summary>A client signed in as one of the demo users (cookies are kept per client).</summary>

@@ -54,6 +54,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
     {
         b.HasPostgresExtension("pg_trgm");
 
+        // Ids are made by the app (UUIDv7), never by the database. Telling EF so matters: a new
+        // child added to a loaded parent (a barcode on a product) is then inserted, not
+        // mistaken for an existing row because its key is already set.
+        foreach (var type in b.Model.GetEntityTypes().Where(t => typeof(Entity).IsAssignableFrom(t.ClrType)))
+            b.Entity(type.ClrType).Property(nameof(Entity.Id)).ValueGeneratedNever();
+
         b.Entity<Tenant>(e =>
         {
             e.HasIndex(x => x.Slug).IsUnique();

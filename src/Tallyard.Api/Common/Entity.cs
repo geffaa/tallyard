@@ -17,6 +17,16 @@ public interface ITenantOwned
 /// <summary>Changes to these entities are written to the append-only audit log.</summary>
 public interface IAudited;
 
+/// <summary>A child row (a product's pack size, a barcode) whose changes are logged on its
+/// parent's audit entry, as one field: <see cref="AuditField"/> = <see cref="AuditValue"/>.</summary>
+public interface IAuditedChild
+{
+    Guid AuditParentId { get; }
+    string AuditParentType { get; }
+    string AuditField { get; }
+    object? AuditValue { get; }
+}
+
 public abstract class TenantEntity : Entity, ITenantOwned
 {
     public Guid TenantId { get; set; }

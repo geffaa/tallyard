@@ -201,7 +201,7 @@ Prinsip:
 
 ## 11. Milestone & task
 
-**M1 — Fondasi (±3 hari)**
+**M1 — Fondasi (±3 hari)** ✅ selesai
 - Setup solusi .NET (modular monolith) + Angular + Docker (Postgres), auth, tenant + RLS, peran, akses per gudang, audit log
 - Master data produk/satuan/barcode, gudang, supplier, pelanggan
 - Generator data demo

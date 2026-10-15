@@ -52,7 +52,7 @@ public static class AuthEndpoints
             });
             current.Set(tenant.Id, user.Id, user.Role);
             return await Me(db, current, ct);
-        }).AllowAnonymous().RequireRateLimiting("login");
+        }).AllowAnonymous().RequireRateLimiting("login").Validated<LoginRequest>();
 
         g.MapPost("/logout", async (HttpContext http) =>
         {

@@ -140,3 +140,19 @@ public class SecurityTests(ApiFixture api)
         Assert.Equal("last_owner", (await res.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("code").GetString());
     }
 }
+
+public class LoginRateLimitTests
+{
+    [Fact]
+    public async Task Repeated_login_attempts_from_one_address_are_throttled()
+    {
+        // No database needed: the limiter runs before the endpoint.
+        await using var app = new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program>()
+            .WithWebHostBuilder(b => b.UseSetting("Security:LoginAttemptsPerMinute", "3"));
+        var client = app.CreateClient();
+        var codes = new List<HttpStatusCode>();
+        for (var i = 0; i < 4; i++)
+            codes.Add((await client.PostAsJsonAsync("/api/auth/login", new { workspace = "", email = "", password = "" })).StatusCode);
+        Assert.Equal([HttpStatusCode.UnprocessableEntity, HttpStatusCode.UnprocessableEntity, HttpStatusCode.UnprocessableEntity, HttpStatusCode.TooManyRequests], codes);
+    }
+}
