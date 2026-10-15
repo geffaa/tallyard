@@ -1,0 +1,55 @@
+using Microsoft.EntityFrameworkCore;
+using Tallyard.Api.Common;
+using Tallyard.Api.Modules.Identity;
+
+namespace Tallyard.Api.Infrastructure;
+
+/// <summary>Named permissions, each a set of roles. Endpoints require a permission, never a role.</summary>
+public static class Perm
+{
+    public const string ManageUsers = nameof(ManageUsers);
+    public const string ManageWarehouses = nameof(ManageWarehouses);
+    public const string EditCatalog = nameof(EditCatalog);
+    public const string EditSuppliers = nameof(EditSuppliers);
+    public const string EditCustomers = nameof(EditCustomers);
+    public const string ViewAudit = nameof(ViewAudit);
+
+    public static readonly Dictionary<string, Role[]> Roles = new()
+    {
+        [ManageUsers] = [Role.Owner],
+        [ManageWarehouses] = [Role.Owner],
+        [EditCatalog] = [Role.Owner, Role.Purchasing],
+        [EditSuppliers] = [Role.Owner, Role.Purchasing],
+        [EditCustomers] = [Role.Owner, Role.Sales, Role.Finance],
+        [ViewAudit] = [Role.Owner],
+    };
+
+    public static bool Has(Role role, string perm) => Roles[perm].Contains(role);
+
+    /// <summary>The permissions a role holds, sent to the client so it can hide what it can't use.
+    /// The API checks them again on every request.</summary>
+    public static string[] For(Role role) => Roles.Where(r => r.Value.Contains(role)).Select(r => r.Key).ToArray();
+}
+
+/// <summary>Which warehouses the current user may see. Owners and "all warehouses" users get null (no limit).</summary>
+public sealed class WarehouseAccess(AppDbContext db, CurrentUser user)
+{
+    HashSet<Guid>? cached;
+    bool loaded;
+
+    public async Task<HashSet<Guid>?> AllowedAsync(CancellationToken ct)
+    {
+        if (loaded) return cached;
+        var me = await db.Users.AsNoTracking().Include(u => u.Warehouses)
+            .FirstAsync(u => u.Id == user.RequiredUserId, ct);
+        cached = me.Role == Role.Owner || me.AllWarehouses ? null : me.Warehouses.Select(w => w.WarehouseId).ToHashSet();
+        loaded = true;
+        return cached;
+    }
+
+    public async Task EnsureAsync(Guid warehouseId, CancellationToken ct)
+    {
+        var allowed = await AllowedAsync(ct);
+        if (allowed is not null && !allowed.Contains(warehouseId)) throw AppException.Forbidden();
+    }
+}
