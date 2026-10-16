@@ -48,16 +48,19 @@ export class Auth {
   }
 }
 
+// inject() only works before the first await, so take everything up front.
 export const signedIn: CanActivateFn = async (_, state) => {
   const auth = inject(Auth);
+  const router = inject(Router);
   if (await auth.load()) return true;
-  return inject(Router).createUrlTree(['/login'], { queryParams: { next: state.url } });
+  return router.createUrlTree(['/login'], { queryParams: { next: state.url } });
 };
 
 export const requires =
   (p: Permission): CanActivateFn =>
   async () => {
     const auth = inject(Auth);
+    const router = inject(Router);
     await auth.load();
-    return auth.can(p) || inject(Router).createUrlTree(['/']);
+    return auth.can(p) || router.createUrlTree(['/']);
   };

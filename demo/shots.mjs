@@ -5,7 +5,8 @@ const out = process.env.OUT ?? 'out/shots';
 const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', defaultViewport: { width: 1440, height: 900, deviceScaleFactor: 1 } });
 const page = await browser.newPage();
 const shot = async (name) => { await new Promise(r => setTimeout(r, 700)); await page.screenshot({ path: `${out}/${name}.png` }); };
-await page.goto(base + '/login'); await shot('01-login');
+// Start signed out at the root: it must land on the sign-in page, not a blank one.
+await page.goto(base + '/'); await page.waitForSelector('form button.btn-primary', { timeout: 5000 }); await shot('01-login');
 await page.click('button.btn-primary'); await page.waitForNavigation();
 await page.goto(base + '/products'); await shot('02-products');
 const first = await page.$('tbody tr.clickable'); await first.click(); await shot('03-product');

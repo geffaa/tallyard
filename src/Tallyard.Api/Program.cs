@@ -91,7 +91,13 @@ app.UseExceptionHandler();
 // Validation messages (FluentValidation) follow Accept-Language, like the app's own errors.
 app.UseRequestLocalization(o => o.SetDefaultCulture("en").AddSupportedUICultures("en", "id").AddSupportedCultures("en"));
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    // Bundles have content hashes in their names and can be cached forever; index.html must be
+    // revalidated, or a browser keeps asking for bundles that no longer exist after a deploy.
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl =
+        ctx.File.Name == "index.html" ? "no-cache" : "public, max-age=31536000, immutable",
+});
 app.UseAuthentication();
 app.Use(async (http, next) =>
 {
@@ -116,7 +122,10 @@ app.MapHub<StockHub>("/hubs/stock");
 api.MapGet("/health", () => Results.Ok(new { ok = true })).AllowAnonymous();
 
 // Client-side routes of the Angular app.
-app.MapFallbackToFile("index.html").AllowAnonymous();
+app.MapFallbackToFile("index.html", new StaticFileOptions
+{
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache",
+}).AllowAnonymous();
 
 app.Run();
 
