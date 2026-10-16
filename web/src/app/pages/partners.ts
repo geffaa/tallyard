@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, Plus, Search } from 'lucide-angular';
-import { Api, ApiError, Page, S } from '../core/api';
+import { Api, latest, ApiError, Page, S } from '../core/api';
 import { Auth } from '../core/auth';
 import { I18n } from '../core/i18n';
 import { Toasts } from '../core/toast';
@@ -182,16 +182,14 @@ export class PartnersPage {
     isActive: [true],
   });
 
+  private fetch = latest((kind: string, q: object) => this.api.get<Page<Partner>>(`/${kind}`, q as never), (d) => this.data.set(d));
+
   constructor() {
     effect(() => {
       const query = { q: this.q(), page: this.page(), pageSize: this.size };
       const kind = this.kind();
-      untracked(() => this.load(kind, query));
+      untracked(() => this.fetch(kind, query));
     });
-  }
-
-  private async load(kind: string, query: Record<string, string | number>) {
-    this.data.set(await this.api.get<Page<Partner>>(`/${kind}`, query));
   }
 
   search(value: string) {
@@ -233,7 +231,7 @@ export class PartnersPage {
       else await this.api.post(`/${this.kind()}`, body);
       this.toasts.show(this.i18n.t('common.saved'));
       this.editing.set(undefined);
-      await this.load(this.kind(), { q: this.q(), page: this.page(), pageSize: this.size });
+      await this.fetch(this.kind(), { q: this.q(), page: this.page(), pageSize: this.size });
     } catch (e) {
       const err = ApiError.from(e);
       const rest = applyServerErrors(this.form, err);

@@ -214,7 +214,7 @@ Prinsip:
 **M3 — Purchasing (±2–3 hari)** ✅ selesai
 - PO + approval, PDF PO, penerimaan parsial, HPP rata-rata, retur, saran reorder
 
-**M4 — Order-to-cash (±3 hari)**
+**M4 — Order-to-cash (±3 hari)** ✅ selesai
 - SO + reservasi + limit kredit, picking/pengiriman, surat jalan, invoice, pembayaran, umur piutang
 
 **M5 — AI (±3 hari)**

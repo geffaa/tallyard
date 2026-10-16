@@ -1,7 +1,7 @@
 import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Api, Page } from '../core/api';
+import { Api, latest, Page } from '../core/api';
 import { I18n } from '../core/i18n';
 import { AuditChanges, AuditEntry } from '../shared/audit-changes';
 import { Pager } from '../shared/ui';
@@ -75,10 +75,12 @@ export class AuditPage {
   page = signal(1);
   data = signal<Page<AuditEntry> | null>(null);
 
+  private fetch = latest((q: object) => this.api.get<Page<AuditEntry>>('/audit', q as never), (d) => this.data.set(d));
+
   constructor() {
     effect(() => {
       const query = { entityType: this.type(), page: this.page(), pageSize: this.size };
-      untracked(() => this.api.get<Page<AuditEntry>>('/audit', query).then((d) => this.data.set(d)));
+      untracked(() => this.fetch(query));
     });
   }
 

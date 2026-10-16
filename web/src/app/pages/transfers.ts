@@ -4,7 +4,7 @@ import { FormArray, FormBuilder, NonNullableFormBuilder, ReactiveFormsModule, Va
 import { Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ArrowLeft, ArrowRight, LucideAngularModule, PackageCheck, Plus, Trash2, Truck } from 'lucide-angular';
-import { Api, ApiError, Page, S } from '../core/api';
+import { Api, latest, ApiError, Page, S } from '../core/api';
 import { Auth } from '../core/auth';
 import { I18n } from '../core/i18n';
 import { Toasts } from '../core/toast';
@@ -79,10 +79,12 @@ export class TransfersPage {
   page = signal(1);
   data = signal<Page<S['TransferListItem']> | null>(null);
 
+  private fetch = latest((q: object) => this.api.get<Page<S['TransferListItem']>>('/transfers', q as never), (d) => this.data.set(d));
+
   constructor() {
     effect(() => {
       const q = { status: this.status(), page: this.page() };
-      untracked(() => this.api.get<Page<S['TransferListItem']>>('/transfers', q).then((d) => this.data.set(d)));
+      untracked(() => this.fetch(q));
     });
   }
 }

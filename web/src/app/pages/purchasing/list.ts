@@ -2,7 +2,7 @@ import { Component, effect, inject, OnInit, signal, untracked } from '@angular/c
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Search } from 'lucide-angular';
-import { Api, Page, S } from '../../core/api';
+import { Api, latest, Page, S } from '../../core/api';
 import { Auth } from '../../core/auth';
 import { I18n } from '../../core/i18n';
 import { MessageKey } from '../../core/messages';
@@ -126,10 +126,12 @@ export class PoListPage implements OnInit {
   mineCount = signal(0);
   private timer?: ReturnType<typeof setTimeout>;
 
+  private fetch = latest((q: object) => this.api.get<Page<S['PoListItem']>>('/purchase-orders', q as never), (d) => this.data.set(d));
+
   constructor() {
     effect(() => {
       const query = { status: this.tab(), q: this.q(), page: this.page() };
-      untracked(() => this.api.get<Page<S['PoListItem']>>('/purchase-orders', query).then((d) => this.data.set(d)));
+      untracked(() => this.fetch(query));
     });
   }
 

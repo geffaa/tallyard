@@ -809,6 +809,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/receivables/aging": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AgingRow"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -1767,6 +1802,718 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sales-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: string;
+                    q?: string;
+                    customerId?: string;
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfSoListItem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SoInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SoDto"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SoInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SoDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/{id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ConfirmInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/{id}/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NoteInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/{id}/reserve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/{id}/ship": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ShipInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/{id}/pick-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PickLine"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sales-orders/credit/{customerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    amount?: number;
+                };
+                header?: never;
+                path: {
+                    customerId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreditDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shipments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    uninvoiced?: boolean;
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfShipmentListItem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shipments/{id}/invoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvoiceInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shipments/{id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: string;
+                    customerId?: string;
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfInvoiceListItem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invoices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvoiceDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invoices/{id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfAnonymousTypeOfGuidAndstringAndDateOnlyAndstringAnddecimalAndstringAndstringAndListOfstring"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PaymentInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1791,10 +2538,42 @@ export interface components {
             /** Format: double */
             unitCost: null | number;
         };
+        AgingRow: {
+            /** Format: uuid */
+            customerId: string;
+            customer: string;
+            /** Format: double */
+            current: number;
+            /** Format: double */
+            days1To30: number;
+            /** Format: double */
+            days31To60: number;
+            /** Format: double */
+            days61To90: number;
+            /** Format: double */
+            over90: number;
+            /** Format: double */
+            total: number;
+            /** Format: double */
+            creditLimit: number;
+        };
         AnonymousTypeOfGuidAndstring: {
             /** Format: uuid */
             id: string;
             number: null | string;
+        };
+        AnonymousTypeOfGuidAndstringAndDateOnlyAndstringAnddecimalAndstringAndstringAndListOfstring: {
+            /** Format: uuid */
+            id: string;
+            number: null | string;
+            /** Format: date */
+            receivedOn: string;
+            method: null | string;
+            /** Format: double */
+            amount: number;
+            reference: null | string;
+            customer: null | string;
+            invoices: null | string[];
         };
         ApprovalRuleDto: {
             /** Format: int32 */
@@ -1852,6 +2631,87 @@ export interface components {
         CommentInput: {
             comment: null | string;
         };
+        ConfirmInput: {
+            allowBackorder: boolean;
+        };
+        CreditDto: {
+            /** Format: double */
+            limit: number;
+            /** Format: double */
+            openInvoices: number;
+            /** Format: double */
+            openOrders: number;
+            /** Format: double */
+            thisOrder: number;
+            /** Format: double */
+            exposure: number;
+            /** Format: int32 */
+            overdueInvoices: number;
+        };
+        InvoiceDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: uuid */
+            customerId: string;
+            customer: string;
+            /** Format: uuid */
+            salesOrderId: string;
+            salesOrder: string;
+            shipment: string;
+            /** Format: date */
+            issueDate: string;
+            /** Format: date */
+            dueDate: string;
+            status: string;
+            /** Format: double */
+            subtotal: number;
+            /** Format: double */
+            taxTotal: number;
+            /** Format: double */
+            total: number;
+            /** Format: double */
+            amountPaid: number;
+            /** Format: double */
+            balance: number;
+            lines: components["schemas"]["InvoiceLineDto"][];
+            payments: components["schemas"]["PaymentLine"][];
+        };
+        InvoiceInput: {
+            /** Format: date */
+            issueDate: null | string;
+        };
+        InvoiceLineDto: {
+            description: string;
+            /** Format: double */
+            quantity: number;
+            unit: string;
+            /** Format: double */
+            unitPrice: number;
+            /** Format: double */
+            discountPercent: number;
+            /** Format: double */
+            taxRate: number;
+            /** Format: double */
+            net: number;
+        };
+        InvoiceListItem: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            customer: string;
+            /** Format: date */
+            issueDate: string;
+            /** Format: date */
+            dueDate: string;
+            status: string;
+            /** Format: double */
+            total: number;
+            /** Format: double */
+            balance: number;
+            /** Format: int32 */
+            daysOverdue: number;
+        };
         JsonElement: unknown;
         LoginRequest: {
             workspace: string;
@@ -1893,6 +2753,9 @@ export interface components {
             unitCost: null | number;
             user: null | string;
         };
+        NoteInput: {
+            note: null | string;
+        };
         OperationDto: {
             /** Format: uuid */
             id: string;
@@ -1907,8 +2770,26 @@ export interface components {
             lines: number;
             warehouse: null | string;
         };
+        PageOfAnonymousTypeOfGuidAndstringAndDateOnlyAndstringAnddecimalAndstringAndstringAndListOfstring: {
+            items: components["schemas"]["AnonymousTypeOfGuidAndstringAndDateOnlyAndstringAnddecimalAndstringAndstringAndListOfstring"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
         PageOfAuditDto: {
             items: components["schemas"]["AuditDto"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        PageOfInvoiceListItem: {
+            items: components["schemas"]["InvoiceListItem"][];
             /** Format: int32 */
             total: number;
             /** Format: int32 */
@@ -1954,6 +2835,24 @@ export interface components {
         };
         PageOfProductListItem: {
             items: components["schemas"]["ProductListItem"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        PageOfShipmentListItem: {
+            items: components["schemas"]["ShipmentListItem"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        PageOfSoListItem: {
+            items: components["schemas"]["SoListItem"][];
             /** Format: int32 */
             total: number;
             /** Format: int32 */
@@ -2023,6 +2922,50 @@ export interface components {
             creditLimit: null | number;
             /** Format: uint32 */
             version: null | number;
+        };
+        PaymentAllocationInput: {
+            /** Format: uuid */
+            invoiceId: string;
+            /** Format: double */
+            amount: number;
+        };
+        PaymentInput: {
+            /** Format: uuid */
+            customerId: string;
+            /** Format: double */
+            amount: number;
+            /** Format: date */
+            receivedOn: null | string;
+            method: string;
+            reference: null | string;
+            allocations: null | components["schemas"]["PaymentAllocationInput"][];
+        };
+        PaymentLine: {
+            number: string;
+            /** Format: date */
+            receivedOn: string;
+            method: string;
+            /** Format: double */
+            amount: number;
+        };
+        PickBatch: {
+            batch: null | string;
+            /** Format: date */
+            expiresOn: null | string;
+            /** Format: double */
+            quantityBase: number;
+        };
+        PickLine: {
+            /** Format: uuid */
+            lineId: string;
+            sku: string;
+            name: string;
+            unit: string;
+            /** Format: double */
+            factor: number;
+            /** Format: double */
+            reserved: number;
+            batches: components["schemas"]["PickBatch"][];
         };
         PoDto: {
             /** Format: uuid */
@@ -2268,6 +3211,161 @@ export interface components {
             suggestedQuantity: number;
             /** Format: double */
             unitPrice: null | number;
+        };
+        ShipInput: {
+            lines: components["schemas"]["ShipLineInput"][];
+            carrier: null | string;
+            trackingNumber: null | string;
+            idempotencyKey: null | string;
+        };
+        ShipLineInput: {
+            /** Format: uuid */
+            lineId: string;
+            /** Format: double */
+            quantity: number;
+        };
+        ShipmentListItem: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            salesOrder: string;
+            /** Format: uuid */
+            salesOrderId: string;
+            customer: string;
+            warehouse: string;
+            /** Format: date-time */
+            shippedAt: string;
+            /** Format: int32 */
+            lines: number;
+            invoice: null | string;
+        };
+        ShipmentSummary: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: date-time */
+            shippedAt: string;
+            shippedBy: null | string;
+            /** Format: int32 */
+            lines: number;
+            /** Format: uuid */
+            invoiceId: null | string;
+            invoiceNumber: null | string;
+        };
+        SoDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            status: string;
+            /** Format: uuid */
+            customerId: string;
+            customer: string;
+            /** Format: uuid */
+            warehouseId: string;
+            warehouse: string;
+            /** Format: date */
+            orderDate: string;
+            /** Format: date */
+            requestedOn: null | string;
+            customerReference: null | string;
+            note: null | string;
+            /** Format: double */
+            subtotal: null | number;
+            /** Format: double */
+            taxTotal: null | number;
+            /** Format: double */
+            total: null | number;
+            createdBy: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            confirmedAt: null | string;
+            holdReason: null | string;
+            credit: null | components["schemas"]["CreditDto"];
+            releasedBy: null | string;
+            releaseNote: null | string;
+            /** Format: date-time */
+            closedAt: null | string;
+            lines: components["schemas"]["SoLineDto"][];
+            shipments: components["schemas"]["ShipmentSummary"][];
+            actions: string[];
+            /** Format: uint32 */
+            version: number;
+        };
+        SoInput: {
+            /** Format: uuid */
+            customerId: string;
+            /** Format: uuid */
+            warehouseId: string;
+            /** Format: date */
+            requestedOn: null | string;
+            customerReference: null | string;
+            note: null | string;
+            lines: components["schemas"]["SoLineInput"][];
+            /** Format: uint32 */
+            version: null | number;
+        };
+        SoLineDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            productId: string;
+            sku: string;
+            name: string;
+            baseUnit: string;
+            unit: string;
+            /** Format: double */
+            factor: number;
+            /** Format: double */
+            quantity: number;
+            /** Format: double */
+            unitPrice: null | number;
+            /** Format: double */
+            discountPercent: null | number;
+            /** Format: double */
+            taxRate: null | number;
+            /** Format: double */
+            net: null | number;
+            /** Format: double */
+            reserved: number;
+            /** Format: double */
+            shipped: number;
+            /** Format: double */
+            backordered: number;
+            /** Format: double */
+            invoiced: number;
+        };
+        SoLineInput: {
+            /** Format: uuid */
+            productId: string;
+            /** Format: double */
+            quantity: number;
+            unit: null | string;
+            /** Format: double */
+            unitPrice: null | number;
+            /** Format: double */
+            discountPercent: null | number;
+            /** Format: double */
+            taxRate: null | number;
+        };
+        SoListItem: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            customer: string;
+            warehouse: string;
+            status: string;
+            /** Format: date */
+            orderDate: string;
+            /** Format: date */
+            requestedOn: null | string;
+            /** Format: int32 */
+            lines: number;
+            /** Format: double */
+            total: null | number;
+            /** Format: double */
+            shippedPercent: number;
+            backordered: boolean;
         };
         StockCell: {
             /** Format: uuid */

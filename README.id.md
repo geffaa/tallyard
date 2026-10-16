@@ -7,7 +7,7 @@ order-to-cash, dengan lapisan AI yang mengubah dokumen supplier menjadi draft pe
 bukan ERP penuh (tanpa buku besar, HR, atau payroll); fokus mendalam di tiga alur yang paling
 sering membuat distributor rugi. Rencana lengkap: [BREAKDOWN.md](BREAKDOWN.md).
 
-**Status:** milestone 1–3 dari 6 selesai.
+**Status:** milestone 1–4 dari 6 selesai.
 - **Fondasi:** tenant terisolasi dengan row-level security Postgres, peran dan akses per gudang,
   audit log append-only, data master (produk dengan kemasan dan barcode, gudang, supplier,
   pelanggan).
@@ -18,8 +18,13 @@ sering membuat distributor rugi. Rencana lengkap: [BREAKDOWN.md](BREAKDOWN.md).
   bisa menyetujui order sendiri), PDF untuk supplier, penerimaan barang sebagian atau penuh
   (scan barcode dus untuk menghitung satu dus), dan saran reorder yang memperhitungkan barang
   dalam pesanan, dijadikan draft order per supplier dengan satu klik.
+- **Order-to-cash:** sales order yang mereservasi stok saat dikonfirmasi (atau menjadikan
+  sisanya backorder), cek kredit yang menahan order untuk keuangan (melebihi limit, atau ada
+  invoice lewat jatuh tempo lebih dari 30 hari), pengiriman dari stok yang direservasi dengan
+  daftar picking FEFO dan surat jalan, satu invoice per pengiriman, pembayaran yang dialokasikan
+  ke invoice tertua, dan laporan umur piutang. Data demo berisi riwayat empat bulan.
 
-Berikutnya: penjualan, order-to-cash (M4).
+Berikutnya: lapisan AI (M5): dokumen supplier menjadi draft order, dan tanya jawab tentang data.
 
 ## Stack
 
@@ -93,6 +98,15 @@ aplikasi terhubung sebagai role yang bukan pemilik tabel):
   beserta alasannya; penerimaan melebihi toleransi 5% ditolak, dan dua orang yang menerima sisa
   barang bersamaan tidak bisa sama-sama berhasil; stok dinilai dengan harga beli tanpa pajak;
   staf gudang menerima barang tetapi tidak pernah melihat harga.
+- **Menjual unit terakhir:** dua order masing-masing 8 dari 10 unit yang sama dikonfirmasi
+  bersamaan: satu mereservasi, yang lain ditolak; order backorder mereservasi yang ada dan
+  pembatalan mengembalikannya; hanya stok yang direservasi yang bisa dikirim; setiap pengiriman
+  hanya ditagih sekali walau diklik dua orang; hanya yang terkirim yang ditagih.
+- **Kredit dan kas:** order yang melebihi limit ditahan (tanpa reservasi) sampai keuangan
+  melepasnya dengan alasan; sales tidak bisa melepasnya; pembayaran melunasi invoice tertua dulu
+  dan tidak boleh melebihi tagihan; invoice lewat jatuh tempo lebih dari 30 hari menahan order baru.
+- **Reservasi cocok dengan order:** jumlah reserved di setiap saldo sama dengan reservasi baris
+  order yang terbuka.
 - **Tidak ada referensi lintas tenant:** tidak ada saldo, mutasi, baris order, atau aturan yang
   menunjuk produk, gudang, atau supplier tenant lain.
 - **Cakupan RLS:** tes gagal jika ada tabel ber-kolom `tenant_id` tanpa row-level security.

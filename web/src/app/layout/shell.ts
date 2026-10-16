@@ -15,6 +15,9 @@ import {
   ClipboardList,
   RefreshCcw,
   ShieldCheck,
+  ReceiptText,
+  Wallet,
+  ChartColumn,
   ShoppingCart,
   Truck,
   Users,
@@ -31,7 +34,6 @@ interface NavItem {
   label: MessageKey;
   icon: LucideIconData;
   perm?: Permission;
-  soon?: boolean;
   /** Highlight only on this exact path (its sub-pages have their own item). */
   exact?: boolean;
 }
@@ -75,14 +77,7 @@ interface NavItem {
               {{ i18n.t(section.title) }}
             </div>
             @for (item of section.items; track item.path) {
-              @if (item.soon) {
-                <div class="flex items-center gap-2.5 h-9 px-2.5 rounded-md text-rail-ink/40 cursor-default">
-                  <lucide-icon [img]="item.icon" [size]="16" />
-                  <span class="flex-1">{{ i18n.t(item.label) }}</span>
-                  <span class="text-[10px] uppercase tracking-wider">{{ i18n.t('nav.soon') }}</span>
-                </div>
-              } @else {
-                <a
+              <a
                   [routerLink]="item.path"
                   routerLinkActive="active"
                   [routerLinkActiveOptions]="{ exact: !!item.exact }"
@@ -91,7 +86,6 @@ interface NavItem {
                   <lucide-icon [img]="item.icon" [size]="16" />
                   {{ i18n.t(item.label) }}
                 </a>
-              }
             }
           }
         </nav>
@@ -176,9 +170,17 @@ export class Shell {
       ],
     },
     {
-      title: 'nav.soon',
+      title: 'nav.sales',
       items: [
-        { path: '/sales', label: 'nav.sales', icon: ShoppingCart, soon: true },
+        { path: '/sales', label: 'nav.salesOrders', icon: ShoppingCart, perm: 'ViewSales' },
+      ],
+    },
+    {
+      title: 'nav.finance',
+      items: [
+        { path: '/invoices', label: 'nav.invoices', icon: ReceiptText, perm: 'ViewSalesPrices' },
+        { path: '/payments', label: 'nav.payments', icon: Wallet, perm: 'ManageReceivables' },
+        { path: '/receivables', label: 'nav.aging', icon: ChartColumn, perm: 'ViewSalesPrices' },
       ],
     },
     {

@@ -71,3 +71,16 @@ function params(q?: Query): HttpParams {
   for (const [k, v] of Object.entries(q ?? {})) if (v !== null && v !== undefined && v !== '') p = p.set(k, String(v));
   return p;
 }
+
+/**
+ * Wraps a loader so only the latest call's result is kept: when a filter changes quickly, a slow
+ * earlier response must not overwrite a newer one.
+ */
+export function latest<A extends unknown[], T>(load: (...args: A) => Promise<T>, apply: (value: T) => void) {
+  let current = 0;
+  return async (...args: A) => {
+    const mine = ++current;
+    const value = await load(...args);
+    if (mine === current) apply(value);
+  };
+}

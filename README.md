@@ -7,7 +7,7 @@ order-to-cash, with an AI layer that turns supplier documents into draft orders.
 deliberately not a full ERP (no general ledger, HR or payroll); it goes deep on the three flows
 where distributors lose money. Full plan: [BREAKDOWN.md](BREAKDOWN.md) (Indonesian).
 
-**Status:** milestones 1–3 of 6 done.
+**Status:** milestones 1–4 of 6 done.
 - **Foundation:** tenants isolated by Postgres row-level security, roles and per-warehouse
   access, an append-only audit log, master data (products with pack sizes and barcodes,
   warehouses, suppliers, customers).
@@ -18,8 +18,13 @@ where distributors lose money. Full plan: [BREAKDOWN.md](BREAKDOWN.md) (Indonesi
   own order), a PDF for the supplier, goods receipts in part or in full (scan a case barcode to
   count a case), and reorder suggestions that count stock already on order, turned into draft
   orders per supplier in one click.
+- **Order-to-cash:** sales orders that reserve stock when confirmed (or back-order what's
+  missing), credit checks that put an order on hold for finance (over the limit, or invoices more
+  than 30 days overdue), shipments from reserved stock with FEFO pick lists and a delivery note,
+  one invoice per shipment, payments applied oldest-first, and a receivables aging report. The
+  demo data holds four months of this history.
 
-Next: sales, order-to-cash (M4).
+Next: the AI layer (M5): supplier documents to draft orders, and questions about the data.
 
 ## Stack
 
@@ -95,6 +100,15 @@ connects as a role that is not the table owner):
   receipts beyond the 5% tolerance are refused, and two people receiving the rest at once can't
   both succeed; stock is valued at the purchase price without tax; warehouse staff receive goods
   but never see prices.
+- **Selling the last units:** two orders for 8 of the same 10 units confirmed at once: one
+  reserves, the other is refused; a back-ordered order reserves what exists and cancelling gives
+  it back; only reserved stock ships; each shipment is invoiced once even if two people click;
+  only what shipped is billed.
+- **Credit and cash:** an order over the limit waits on hold (nothing reserved) until finance
+  releases it with a reason; sales can't release it; payments settle the oldest invoice first and
+  can't exceed what is owed; invoices more than 30 days overdue hold new orders.
+- **Reservations match orders:** every balance's reserved quantity equals the reserved quantity
+  of the open order lines.
 - **No cross-tenant references:** no balance, movement, order line or rule points at another
   tenant's product, warehouse or supplier.
 - **RLS coverage:** a test fails if any table with a `tenant_id` column lacks row-level security.

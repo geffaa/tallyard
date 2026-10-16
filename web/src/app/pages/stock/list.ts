@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, effect, inject, signal, untracked } fr
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ArrowLeftRight, LucideAngularModule, Search, SlidersHorizontal } from 'lucide-angular';
-import { Api, Page, S } from '../../core/api';
+import { Api, latest, Page, S } from '../../core/api';
 import { Auth } from '../../core/auth';
 import { I18n } from '../../core/i18n';
 import { StockLive } from '../../core/stock-live';
@@ -142,11 +142,13 @@ export class StockPage {
   });
   private timer?: ReturnType<typeof setTimeout>;
 
+  private fetch = latest((q: object) => this.api.get<Page<Row>>('/stock', q as never), (res) => (this.rows.set(res.items), this.total.set(res.total)));
+
   constructor() {
     this.api.get<S['WarehouseDto'][]>('/warehouses').then((w) => this.warehouses.set(w.filter((x) => x.isActive)));
     effect(() => {
       const query = { q: this.q(), filter: this.filter(), page: this.page(), pageSize: this.size };
-      untracked(() => this.load(query));
+      untracked(() => this.fetch(query));
     });
 
     // Patch rows in place when stock changes anywhere in the company.
@@ -177,11 +179,5 @@ export class StockPage {
   search(v: string) {
     clearTimeout(this.timer);
     this.timer = setTimeout(() => (this.q.set(v), this.page.set(1)), 200);
-  }
-
-  private async load(query: Record<string, string | number>) {
-    const res = await this.api.get<Page<Row>>('/stock', query);
-    this.rows.set(res.items);
-    this.total.set(res.total);
   }
 }

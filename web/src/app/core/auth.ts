@@ -16,7 +16,13 @@ export type Permission =
   | 'ViewPurchasing'
   | 'EditPurchaseOrders'
   | 'ApprovePurchaseOrders'
-  | 'ReceiveGoods';
+  | 'ReceiveGoods'
+  | 'ViewSales'
+  | 'ViewSalesPrices'
+  | 'EditSalesOrders'
+  | 'ReleaseCreditHolds'
+  | 'ShipOrders'
+  | 'ManageReceivables';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
