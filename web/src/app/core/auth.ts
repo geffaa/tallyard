@@ -12,7 +12,11 @@ export type Permission =
   | 'ViewAudit'
   | 'AdjustStock'
   | 'TransferStock'
-  | 'ViewCosts';
+  | 'ViewCosts'
+  | 'ViewPurchasing'
+  | 'EditPurchaseOrders'
+  | 'ApprovePurchaseOrders'
+  | 'ReceiveGoods';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {

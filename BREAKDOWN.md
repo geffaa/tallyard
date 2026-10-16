@@ -211,7 +211,7 @@ Prinsip:
 - Tes konkurensi dan tes invariant ledger
 - Matriks stok dan update live (SignalR)
 
-**M3 — Purchasing (±2–3 hari)**
+**M3 — Purchasing (±2–3 hari)** ✅ selesai
 - PO + approval, PDF PO, penerimaan parsial, HPP rata-rata, retur, saran reorder
 
 **M4 — Order-to-cash (±3 hari)**

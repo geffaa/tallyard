@@ -7,15 +7,19 @@ order-to-cash, with an AI layer that turns supplier documents into draft orders.
 deliberately not a full ERP (no general ledger, HR or payroll); it goes deep on the three flows
 where distributors lose money. Full plan: [BREAKDOWN.md](BREAKDOWN.md) (Indonesian).
 
-**Status:** milestones 1–2 of 6 done.
+**Status:** milestones 1–3 of 6 done.
 - **Foundation:** tenants isolated by Postgres row-level security, roles and per-warehouse
   access, an append-only audit log, master data (products with pack sizes and barcodes,
   warehouses, suppliers, customers).
 - **Stock ledger:** balances per warehouse under row locks, batches with expiry picked
   earliest-expiry-first, moving average cost, adjustments, transfers with an in-transit state,
   a stock card per product, and a stock matrix that updates live (SignalR).
+- **Purchasing:** purchase orders with value-based, multi-level approval (no one approves their
+  own order), a PDF for the supplier, goods receipts in part or in full (scan a case barcode to
+  count a case), and reorder suggestions that count stock already on order, turned into draft
+  orders per supplier in one click.
 
-Next: purchasing (M3).
+Next: sales, order-to-cash (M4).
 
 ## Stack
 
@@ -86,6 +90,13 @@ connects as a role that is not the table owner):
   twice at the same moment posts once (the second gets `409`).
 - **FEFO and costing:** issues take the batch that expires first; receiving at a different cost
   updates the moving average; warehouse staff never see costs.
+- **Purchasing rules:** a 16,500 order needs finance, then the owner; the creator can't approve
+  it and finance can't take the owner's step; a rejection returns it to draft with the reason;
+  receipts beyond the 5% tolerance are refused, and two people receiving the rest at once can't
+  both succeed; stock is valued at the purchase price without tax; warehouse staff receive goods
+  but never see prices.
+- **No cross-tenant references:** no balance, movement, order line or rule points at another
+  tenant's product, warehouse or supplier.
 - **RLS coverage:** a test fails if any table with a `tenant_id` column lacks row-level security.
 - **Module boundaries:** each module may only depend on the modules it is allowed to.
 
@@ -123,6 +134,13 @@ connects as a role that is not the table owner):
   neither warehouse until the destination receives it, at the cost it left with.
 - **Live without leaking.** After a posting commits, the changed balances (quantities only, never
   costs) go to the tenant's SignalR group; the browser ignores warehouses it doesn't show.
+- **State machines on the entity.** Submitting, approving, receiving, closing and cancelling are
+  methods on `PurchaseOrder` that refuse transitions which aren't allowed, whatever the UI shows.
+  The API also returns the actions the current user may take on each order, so the screen shows
+  exactly those buttons.
+- **The seeder goes through the app role.** Demo data is created with the same services and
+  database role as requests, so RLS keeps tenants apart while seeding too. (An early version used
+  the owner role, which bypasses RLS, and mixed tenants' data; the cross-tenant test now guards it.)
 - **Typed end to end.** The web app's API types are generated from the OpenAPI document
   (`npm run api:types`); JSON numbers are strict, so money is `number`, never `number | string`.
 - **Interface text in two languages without a library.** Typed dictionaries: the Indonesian

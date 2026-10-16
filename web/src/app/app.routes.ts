@@ -27,6 +27,36 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/transfers').then((m) => m.TransferNewPage),
       },
       { path: 'transfers/:id', loadComponent: () => import('./pages/transfers').then((m) => m.TransferDetailPage) },
+      {
+        path: 'purchasing',
+        canActivate: [requires('ViewPurchasing')],
+        loadComponent: () => import('./pages/purchasing/list').then((m) => m.PoListPage),
+      },
+      {
+        path: 'purchasing/reorder',
+        canActivate: [requires('ViewPurchasing')],
+        loadComponent: () => import('./pages/purchasing/reorder').then((m) => m.ReorderPage),
+      },
+      {
+        path: 'purchasing/new',
+        canActivate: [requires('EditPurchaseOrders')],
+        loadComponent: () => import('./pages/purchasing/order').then((m) => m.PoPage),
+      },
+      {
+        path: 'purchasing/:id/receive',
+        canActivate: [requires('ReceiveGoods')],
+        loadComponent: () => import('./pages/purchasing/receive').then((m) => m.ReceivePage),
+      },
+      {
+        path: 'purchasing/:id',
+        canActivate: [requires('ViewPurchasing')],
+        loadComponent: () => import('./pages/purchasing/order').then((m) => m.PoPage),
+      },
+      {
+        path: 'settings/approvals',
+        canActivate: [requires('ManageUsers')],
+        loadComponent: () => import('./pages/approval-rules').then((m) => m.ApprovalRulesPage),
+      },
       { path: 'warehouses', loadComponent: () => import('./pages/warehouses').then((m) => m.WarehousesPage) },
       {
         path: 'suppliers',

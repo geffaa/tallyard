@@ -7,15 +7,19 @@ order-to-cash, dengan lapisan AI yang mengubah dokumen supplier menjadi draft pe
 bukan ERP penuh (tanpa buku besar, HR, atau payroll); fokus mendalam di tiga alur yang paling
 sering membuat distributor rugi. Rencana lengkap: [BREAKDOWN.md](BREAKDOWN.md).
 
-**Status:** milestone 1–2 dari 6 selesai.
+**Status:** milestone 1–3 dari 6 selesai.
 - **Fondasi:** tenant terisolasi dengan row-level security Postgres, peran dan akses per gudang,
   audit log append-only, data master (produk dengan kemasan dan barcode, gudang, supplier,
   pelanggan).
 - **Ledger stok:** saldo per gudang dengan row lock, batch dengan kedaluwarsa yang diambil
   berdasarkan kedaluwarsa terdekat (FEFO), HPP rata-rata bergerak, penyesuaian, transfer dengan
   status dalam perjalanan, kartu stok per produk, dan matriks stok yang ter-update live (SignalR).
+- **Pembelian:** purchase order dengan approval bertingkat berdasarkan nilai (tidak ada yang
+  bisa menyetujui order sendiri), PDF untuk supplier, penerimaan barang sebagian atau penuh
+  (scan barcode dus untuk menghitung satu dus), dan saran reorder yang memperhitungkan barang
+  dalam pesanan, dijadikan draft order per supplier dengan satu klik.
 
-Berikutnya: pembelian (M3).
+Berikutnya: penjualan, order-to-cash (M4).
 
 ## Stack
 
@@ -84,6 +88,13 @@ aplikasi terhubung sebagai role yang bukan pemilik tabel):
   transfer dua kali di saat yang sama hanya diposting sekali (yang kedua mendapat `409`).
 - **FEFO dan HPP:** pengeluaran mengambil batch yang paling cepat kedaluwarsa; penerimaan dengan
   harga berbeda memperbarui HPP rata-rata; staf gudang tidak pernah melihat harga.
+- **Aturan pembelian:** order 16.500 perlu finance lalu owner; pembuatnya tidak bisa
+  menyetujui dan finance tidak bisa mengambil tahap owner; penolakan mengembalikan ke draft
+  beserta alasannya; penerimaan melebihi toleransi 5% ditolak, dan dua orang yang menerima sisa
+  barang bersamaan tidak bisa sama-sama berhasil; stok dinilai dengan harga beli tanpa pajak;
+  staf gudang menerima barang tetapi tidak pernah melihat harga.
+- **Tidak ada referensi lintas tenant:** tidak ada saldo, mutasi, baris order, atau aturan yang
+  menunjuk produk, gudang, atau supplier tenant lain.
 - **Cakupan RLS:** tes gagal jika ada tabel ber-kolom `tenant_id` tanpa row-level security.
 - **Batas modul:** setiap modul hanya boleh bergantung pada modul yang diizinkan.
 
@@ -122,6 +133,13 @@ aplikasi terhubung sebagai role yang bukan pemilik tabel):
   asal; stok tidak ada di gudang mana pun sampai gudang tujuan menerimanya, dengan HPP saat keluar.
 - **Live tanpa bocor.** Setelah posting tersimpan, saldo yang berubah (kuantitas saja, tanpa
   harga) dikirim ke grup SignalR tenant; browser mengabaikan gudang yang tidak ditampilkan.
+- **State machine di entity.** Ajukan, setujui, terima, tutup, dan batalkan adalah method di
+  `PurchaseOrder` yang menolak transisi yang tidak diizinkan, apa pun tampilan UI-nya. API juga
+  mengembalikan aksi yang boleh dilakukan user saat ini, sehingga layar menampilkan tombol yang
+  tepat.
+- **Seeder lewat role aplikasi.** Data demo dibuat dengan service dan role database yang sama
+  dengan request, sehingga RLS memisahkan tenant saat seeding juga. (Versi awal memakai role
+  owner yang melewati RLS dan mencampur data tenant; tes lintas tenant kini menjaganya.)
 - **Bertipe dari ujung ke ujung.** Tipe API di web di-generate dari dokumen OpenAPI
   (`npm run api:types`); angka JSON strict, sehingga uang bertipe `number`, bukan `number | string`.
 - **Teks antarmuka dua bahasa tanpa library.** Kamus bertipe: tabel Indonesia wajib punya kunci

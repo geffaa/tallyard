@@ -44,7 +44,7 @@ public static class PurchasingEndpoints
             orders = status switch
             {
                 "draft" => orders.Where(p => p.Status == PoStatus.Draft),
-                "approval" => orders.Where(p => p.Status == PoStatus.PendingApproval),
+                "approval" or "mine" => orders.Where(p => p.Status == PoStatus.PendingApproval),
                 "open" => orders.Where(p => p.Status == PoStatus.Approved || p.Status == PoStatus.Sent || p.Status == PoStatus.PartiallyReceived),
                 "done" => orders.Where(p => p.Status == PoStatus.Received || p.Status == PoStatus.Closed || p.Status == PoStatus.Cancelled),
                 _ => orders,
@@ -61,14 +61,17 @@ public static class PurchasingEndpoints
                 Ordered = p.Lines.Sum(l => l.Quantity * l.Factor),
                 Received = p.Lines.Sum(l => l.ReceivedBase),
                 Approved = p.Approvals.Select(a => a.Level).ToList(),
-            }).ToPageAsync(new PageQuery(page ?? 1, 25), ct);
-            return new Page<PoListItem>(result.Items.Select(p => new PoListItem(
+            }).ToPageAsync(new PageQuery(status == "mine" ? 1 : page ?? 1, status == "mine" ? 200 : 25), ct);
+            var items = result.Items.Select(p => new PoListItem(
                 p.Id, p.Number, p.Supplier, p.Warehouse, p.Status.ToString(), p.OrderDate, p.ExpectedOn, p.Lines,
                 costs ? p.Total : null,
                 AwaitingMe: p.Status == PoStatus.PendingApproval && p.CreatedBy != me.UserId &&
                             NextLevel(p.Total, p.Approved, rules) is { } next && (next.Role == me.Role || me.Role == Role.Owner),
-                p.Ordered == 0 ? 0 : Math.Round(Math.Min(1, p.Received / p.Ordered) * 100, 0))).ToList(),
-                result.Total, result.PageNumber, result.PageSize);
+                p.Ordered == 0 ? 0 : Math.Round(Math.Min(1, p.Received / p.Ordered) * 100, 0))).ToList();
+            // "Needs my approval" depends on the rules and who approved what, so it is filtered here
+            // (a handful of pending orders at most).
+            if (status == "mine") items = items.Where(i => i.AwaitingMe).ToList();
+            return new Page<PoListItem>(items, status == "mine" ? items.Count : result.Total, result.PageNumber, result.PageSize);
         });
 
         g.MapGet("/{id:guid}", async (Guid id, PurchasingService svc, AppDbContext db, CurrentUser me, CancellationToken ct) =>

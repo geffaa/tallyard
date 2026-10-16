@@ -1151,6 +1151,622 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/purchase-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: string;
+                    q?: string;
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfPoListItem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PoInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PoDto"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PoInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PoDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CommentInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CommentInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PoDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}/receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ReceiveInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-orders/{id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/approval-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApprovalRuleDto"][];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ApprovalRuleDto"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reorder/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ReorderSuggestion"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reorder/create-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ReorderPick"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AnonymousTypeOfGuidAndstring"][];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reorder/rules/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    productId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ReorderRuleDto"][];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    productId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ReorderRuleDto"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1174,6 +1790,29 @@ export interface components {
             expiresOn: null | string;
             /** Format: double */
             unitCost: null | number;
+        };
+        AnonymousTypeOfGuidAndstring: {
+            /** Format: uuid */
+            id: string;
+            number: null | string;
+        };
+        ApprovalRuleDto: {
+            /** Format: int32 */
+            level: number;
+            /** Format: double */
+            minTotal: number;
+            role: string;
+        };
+        ApprovalStep: {
+            /** Format: int32 */
+            level: number;
+            role: string;
+            /** Format: double */
+            minTotal: null | number;
+            approvedBy: null | string;
+            /** Format: date-time */
+            at: null | string;
+            comment: null | string;
         };
         AuditDto: {
             /** Format: uuid */
@@ -1209,6 +1848,9 @@ export interface components {
         };
         CategoryInput: {
             name: string;
+        };
+        CommentInput: {
+            comment: null | string;
         };
         JsonElement: unknown;
         LoginRequest: {
@@ -1301,6 +1943,15 @@ export interface components {
             /** Format: int32 */
             pageSize: number;
         };
+        PageOfPoListItem: {
+            items: components["schemas"]["PoListItem"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
         PageOfProductListItem: {
             items: components["schemas"]["ProductListItem"][];
             /** Format: int32 */
@@ -1373,6 +2024,119 @@ export interface components {
             /** Format: uint32 */
             version: null | number;
         };
+        PoDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            status: string;
+            /** Format: uuid */
+            supplierId: string;
+            supplier: string;
+            /** Format: uuid */
+            warehouseId: string;
+            warehouse: string;
+            /** Format: date */
+            orderDate: string;
+            /** Format: date */
+            expectedOn: null | string;
+            note: null | string;
+            /** Format: double */
+            subtotal: null | number;
+            /** Format: double */
+            taxTotal: null | number;
+            /** Format: double */
+            total: null | number;
+            createdBy: null | string;
+            /** Format: uuid */
+            createdById: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            submittedAt: null | string;
+            /** Format: date-time */
+            approvedAt: null | string;
+            /** Format: date-time */
+            sentAt: null | string;
+            /** Format: date-time */
+            closedAt: null | string;
+            rejectedBy: null | string;
+            rejectionReason: null | string;
+            /** Format: date-time */
+            rejectedAt: null | string;
+            lines: components["schemas"]["PoLineDto"][];
+            approvals: components["schemas"]["ApprovalStep"][];
+            receipts: components["schemas"]["ReceiptDto"][];
+            actions: string[];
+            /** Format: uint32 */
+            version: number;
+        };
+        PoInput: {
+            /** Format: uuid */
+            supplierId: string;
+            /** Format: uuid */
+            warehouseId: string;
+            /** Format: date */
+            expectedOn: null | string;
+            note: null | string;
+            lines: components["schemas"]["PoLineInput"][];
+            /** Format: uint32 */
+            version: null | number;
+        };
+        PoLineDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            productId: string;
+            sku: string;
+            name: string;
+            baseUnit: string;
+            trackBatches: boolean;
+            unit: string;
+            /** Format: double */
+            factor: number;
+            /** Format: double */
+            quantity: number;
+            /** Format: double */
+            unitPrice: null | number;
+            /** Format: double */
+            taxRate: null | number;
+            /** Format: double */
+            net: null | number;
+            /** Format: double */
+            receivedBase: number;
+            /** Format: double */
+            orderedBase: number;
+        };
+        PoLineInput: {
+            /** Format: uuid */
+            productId: string;
+            /** Format: double */
+            quantity: number;
+            unit: null | string;
+            /** Format: double */
+            unitPrice: number;
+            /** Format: double */
+            taxRate: null | number;
+        };
+        PoListItem: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            supplier: string;
+            warehouse: string;
+            status: string;
+            /** Format: date */
+            orderDate: string;
+            /** Format: date */
+            expectedOn: null | string;
+            /** Format: int32 */
+            lines: number;
+            /** Format: double */
+            total: null | number;
+            awaitingMe: boolean;
+            /** Format: double */
+            receivedPercent: number;
+        };
         ProductDto: {
             /** Format: uuid */
             id: string;
@@ -1432,6 +2196,78 @@ export interface components {
             trackBatches: boolean;
             warehouses: components["schemas"]["StockWarehouse"][];
             batches: components["schemas"]["BatchStock"][];
+        };
+        ReceiptDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: date-time */
+            receivedAt: string;
+            receivedBy: null | string;
+            /** Format: int32 */
+            lines: number;
+        };
+        ReceiveInput: {
+            lines: components["schemas"]["ReceiveLineInput"][];
+            note: null | string;
+            idempotencyKey: null | string;
+        };
+        ReceiveLineInput: {
+            /** Format: uuid */
+            lineId: string;
+            /** Format: double */
+            quantity: number;
+            batchNumber: null | string;
+            /** Format: date */
+            expiresOn: null | string;
+        };
+        ReorderPick: {
+            /** Format: uuid */
+            productId: string;
+            /** Format: uuid */
+            warehouseId: string;
+            /** Format: double */
+            quantity: number;
+        };
+        ReorderRuleDto: {
+            /** Format: uuid */
+            warehouseId: string;
+            /** Format: uuid */
+            supplierId: string;
+            /** Format: double */
+            reorderPoint: number;
+            /** Format: double */
+            reorderQuantity: number;
+        };
+        ReorderSuggestion: {
+            /** Format: uuid */
+            productId: string;
+            sku: string;
+            name: string;
+            baseUnit: string;
+            /** Format: uuid */
+            warehouseId: string;
+            warehouse: string;
+            /** Format: uuid */
+            supplierId: string;
+            supplier: string;
+            /** Format: double */
+            onHand: number;
+            /** Format: double */
+            reserved: number;
+            /** Format: double */
+            incoming: number;
+            /** Format: double */
+            reorderPoint: number;
+            /** Format: double */
+            suggestedBase: number;
+            unit: string;
+            /** Format: double */
+            factor: number;
+            /** Format: double */
+            suggestedQuantity: number;
+            /** Format: double */
+            unitPrice: null | number;
         };
         StockCell: {
             /** Format: uuid */

@@ -13,6 +13,8 @@ import {
   ScrollText,
   SlidersHorizontal,
   ClipboardList,
+  RefreshCcw,
+  ShieldCheck,
   ShoppingCart,
   Truck,
   Users,
@@ -158,6 +160,13 @@ export class Shell {
       ],
     },
     {
+      title: 'nav.purchasing',
+      items: [
+        { path: '/purchasing', label: 'nav.orders', icon: ClipboardList, perm: 'ViewPurchasing', exact: true },
+        { path: '/purchasing/reorder', label: 'nav.reorder', icon: RefreshCcw, perm: 'ViewPurchasing' },
+      ],
+    },
+    {
       title: 'nav.masterData',
       items: [
         { path: '/products', label: 'nav.products', icon: Package },
@@ -169,7 +178,6 @@ export class Shell {
     {
       title: 'nav.soon',
       items: [
-        { path: '/purchasing', label: 'nav.purchasing', icon: ClipboardList, soon: true },
         { path: '/sales', label: 'nav.sales', icon: ShoppingCart, soon: true },
       ],
     },
@@ -177,6 +185,7 @@ export class Shell {
       title: 'nav.admin',
       items: [
         { path: '/users', label: 'nav.users', icon: Users, perm: 'ManageUsers' },
+        { path: '/settings/approvals', label: 'nav.approvalRules', icon: ShieldCheck, perm: 'ManageUsers' },
         { path: '/audit', label: 'nav.audit', icon: ScrollText, perm: 'ViewAudit' },
       ],
     },
