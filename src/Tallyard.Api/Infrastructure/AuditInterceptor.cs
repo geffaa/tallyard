@@ -58,7 +58,15 @@ public sealed class AuditInterceptor(CurrentUser user) : SaveChangesInterceptor
             var before = entry.State == EntityState.Added ? null : Original(entry);
             var after = entry.State == EntityState.Deleted ? null : child.AuditValue;
             if (entry.State == EntityState.Modified && Equals(before, after)) continue;
-            parent.Changes[child.AuditField] = [before, after];
+            // A row replaced by a new one with the same label (a draft's lines are rewritten on
+            // save) is one change: the old value from the deleted row, the new from the added.
+            if (parent.Changes.TryGetValue(child.AuditField, out var seen))
+            {
+                before = seen[0] ?? before;
+                after = entry.State == EntityState.Deleted ? seen[1] : after;
+            }
+            if (Equals(before, after)) parent.Changes.Remove(child.AuditField);
+            else parent.Changes[child.AuditField] = [before, after];
         }
 
         foreach (var (log, changes) in logs.Values.Where(l => l.Changes.Count > 0 || l.Log.Action != "updated"))

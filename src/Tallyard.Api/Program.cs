@@ -11,6 +11,7 @@ using Tallyard.Api.Modules.Catalog;
 using Tallyard.Api.Modules.Identity;
 using Tallyard.Api.Modules.Inventory;
 using Tallyard.Api.Modules.Partners;
+using Tallyard.Api.Modules.Purchasing;
 using Tallyard.Api.Modules.Warehouses;
 using Tallyard.Api.Seed;
 
@@ -24,6 +25,8 @@ builder.Services.AddScoped<WarehouseAccess>();
 builder.Services.AddScoped<DocumentNumbers>();
 builder.Services.AddScoped<StockLedger>();
 builder.Services.AddScoped<Quantities>();
+builder.Services.AddScoped<PurchasingService>();
+builder.Services.AddScoped<Reorder>();
 builder.Services.AddSingleton<IStockNotifier, SignalRStockNotifier>();
 builder.Services.AddSignalR();
 builder.Services.AddDbContext<AppDbContext>((sp, o) => Db.Configure(o, config.GetConnectionString("App")!)
@@ -77,6 +80,9 @@ builder.Services.AddRateLimiter(o =>
         }));
 });
 
+// Free Community license: for organisations under USD 1M annual revenue (see questpdf.com/license).
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 var app = builder.Build();
 
 // `dotnet run -- migrate` / `dotnet run -- seed`: run as the owner role, then exit.
@@ -118,6 +124,7 @@ PartnerEndpoints.Map(api);
 AuditEndpoints.Map(api);
 StockEndpoints.Map(api);
 TransferEndpoints.Map(api);
+PurchasingEndpoints.Map(api);
 app.MapHub<StockHub>("/hubs/stock");
 api.MapGet("/health", () => Results.Ok(new { ok = true })).AllowAnonymous();
 

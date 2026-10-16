@@ -17,6 +17,11 @@ public static class Perm
     public const string TransferStock = nameof(TransferStock);
     /// <summary>Purchase costs and stock value. Warehouse and sales staff see quantities only.</summary>
     public const string ViewCosts = nameof(ViewCosts);
+    public const string ViewPurchasing = nameof(ViewPurchasing);
+    public const string EditPurchaseOrders = nameof(EditPurchaseOrders);
+    /// <summary>May act on an approval step; which step is decided by the approval rules.</summary>
+    public const string ApprovePurchaseOrders = nameof(ApprovePurchaseOrders);
+    public const string ReceiveGoods = nameof(ReceiveGoods);
 
     public static readonly Dictionary<string, Role[]> Roles = new()
     {
@@ -29,6 +34,10 @@ public static class Perm
         [AdjustStock] = [Role.Owner, Role.Warehouse],
         [TransferStock] = [Role.Owner, Role.Warehouse],
         [ViewCosts] = [Role.Owner, Role.Purchasing, Role.Finance],
+        [ViewPurchasing] = [Role.Owner, Role.Purchasing, Role.Finance, Role.Warehouse],
+        [EditPurchaseOrders] = [Role.Owner, Role.Purchasing],
+        [ApprovePurchaseOrders] = [Role.Owner, Role.Finance, Role.Purchasing],
+        [ReceiveGoods] = [Role.Owner, Role.Warehouse],
     };
 
     public static bool Has(Role role, string perm) => Roles[perm].Contains(role);

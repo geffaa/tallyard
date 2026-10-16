@@ -17,6 +17,19 @@ public static class Db
     }
 }
 
+public static class DbApp
+{
+    /// <summary>A context as the application role, scoped to the tenant in <paramref name="user"/> by
+    /// RLS, with the same interceptors as a request. For background work and seeding.</summary>
+    public static AppDbContext Create(IConfiguration config, CurrentUser user)
+    {
+        var o = new DbContextOptionsBuilder<AppDbContext>();
+        Db.Configure(o, config.GetConnectionString("App")!)
+            .AddInterceptors(new TenantConnectionInterceptor(user), new AuditInterceptor(user));
+        return new AppDbContext(o.Options, user);
+    }
+}
+
 public sealed class DesignTimeFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args) => Db.Owner(new ConfigurationBuilder()

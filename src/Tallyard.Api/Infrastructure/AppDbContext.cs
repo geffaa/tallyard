@@ -5,6 +5,7 @@ using Tallyard.Api.Modules.Catalog;
 using Tallyard.Api.Modules.Identity;
 using Tallyard.Api.Modules.Inventory;
 using Tallyard.Api.Modules.Partners;
+using Tallyard.Api.Modules.Purchasing;
 using Tallyard.Api.Modules.Warehouses;
 
 namespace Tallyard.Api.Infrastructure;
@@ -30,6 +31,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Transfer> Transfers => Set<Transfer>();
     public DbSet<TransferLine> TransferLines => Set<TransferLine>();
+    public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
+    public DbSet<PurchaseOrderLine> PurchaseOrderLines => Set<PurchaseOrderLine>();
+    public DbSet<ApprovalRule> ApprovalRules => Set<ApprovalRule>();
+    public DbSet<PoApproval> PoApprovals => Set<PoApproval>();
+    public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
+    public DbSet<GoodsReceiptLine> GoodsReceiptLines => Set<GoodsReceiptLine>();
+    public DbSet<ReorderRule> ReorderRules => Set<ReorderRule>();
 
     public override Task<int> SaveChangesAsync(bool acceptAll, CancellationToken ct = default)
     {
@@ -207,6 +215,78 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
             e.Property(x => x.Quantity).HasPrecision(18, 4);
             e.Property(x => x.UnitCost).HasPrecision(18, 4);
             e.ToTable(t => t.HasCheckConstraint("ck_transfer_lines_quantity", "quantity > 0"));
+        });
+
+        b.Entity<PurchaseOrder>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Number }).IsUnique();
+            e.HasIndex(x => new { x.TenantId, x.Status });
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Subtotal).HasPrecision(18, 2);
+            e.Property(x => x.TaxTotal).HasPrecision(18, 2);
+            e.Property(x => x.Total).HasPrecision(18, 2);
+            e.HasOne<Supplier>().WithMany().HasForeignKey(x => x.SupplierId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.WarehouseId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.PurchaseOrderId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.Approvals).WithOne().HasForeignKey(x => x.PurchaseOrderId).OnDelete(DeleteBehavior.Cascade);
+            e.Ignore(x => x.Editable);
+            e.Ignore(x => x.Receivable);
+            e.Property(x => x.Version).IsRowVersion();
+        });
+        b.Entity<PurchaseOrderLine>(e =>
+        {
+            e.HasIndex(x => x.ProductId);
+            e.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            e.Property(x => x.Unit).HasMaxLength(20);
+            e.Property(x => x.Factor).HasPrecision(18, 4);
+            e.Property(x => x.Quantity).HasPrecision(18, 4);
+            e.Property(x => x.UnitPrice).HasPrecision(18, 4);
+            e.Property(x => x.TaxRate).HasPrecision(5, 2);
+            e.Property(x => x.Net).HasPrecision(18, 2);
+            e.Property(x => x.Tax).HasPrecision(18, 2);
+            e.Property(x => x.ReceivedBase).HasPrecision(18, 4);
+            e.Ignore(x => x.OrderedBase);
+            e.Ignore(x => x.RemainingBase);
+            e.Ignore(x => x.BaseUnitCost);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("ck_po_lines_quantity", "quantity > 0 AND factor > 0");
+                t.HasCheckConstraint("ck_po_lines_price", "unit_price >= 0");
+                // Never more than ordered plus the 5% tolerance (PurchasingService.OverReceiptTolerance).
+                t.HasCheckConstraint("ck_po_lines_received", "received_base >= 0 AND received_base <= quantity * factor * 1.05");
+            });
+        });
+        b.Entity<ApprovalRule>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Level }).IsUnique();
+            e.Property(x => x.Role).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.MinTotal).HasPrecision(18, 2);
+        });
+        b.Entity<PoApproval>(e =>
+        {
+            e.HasIndex(x => new { x.PurchaseOrderId, x.Level }).IsUnique();
+            e.Property(x => x.Role).HasConversion<string>().HasMaxLength(20);
+        });
+        b.Entity<GoodsReceipt>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Number }).IsUnique();
+            e.HasIndex(x => x.PurchaseOrderId);
+            e.HasOne<PurchaseOrder>().WithMany().HasForeignKey(x => x.PurchaseOrderId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.GoodsReceiptId);
+        });
+        b.Entity<GoodsReceiptLine>(e =>
+        {
+            e.Property(x => x.QuantityBase).HasPrecision(18, 4);
+            e.Property(x => x.UnitCost).HasPrecision(18, 4);
+        });
+        b.Entity<ReorderRule>(e =>
+        {
+            e.HasIndex(x => new { x.ProductId, x.WarehouseId }).IsUnique();
+            e.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.WarehouseId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Supplier>().WithMany().HasForeignKey(x => x.SupplierId).OnDelete(DeleteBehavior.Restrict);
+            e.Property(x => x.ReorderPoint).HasPrecision(18, 4);
+            e.Property(x => x.ReorderQuantity).HasPrecision(18, 4);
         });
 
         b.Entity<AuditLog>(e =>

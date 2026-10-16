@@ -5,6 +5,7 @@ using Tallyard.Api.Modules.Catalog;
 using Tallyard.Api.Modules.Identity;
 using Tallyard.Api.Modules.Inventory;
 using Tallyard.Api.Modules.Partners;
+using Tallyard.Api.Modules.Purchasing;
 using Tallyard.Api.Modules.Warehouses;
 
 namespace Tallyard.Api.Seed;
@@ -31,14 +32,20 @@ public static class DemoSeeder
     static async Task Tenant(IConfiguration config, string slug, string name, string currency, string domain,
         (string Code, string Name, string City)[] warehouses, int products, int suppliers, int customers)
     {
+        // Only creating the tenant needs the owner role (the app role can't insert tenants).
+        // Everything else goes through the app role, so RLS keeps each tenant's data apart here
+        // exactly as it does for requests.
         var current = new CurrentUser();
-        await using var db = Db.Owner(config, current);
-        if (await db.Tenants.AnyAsync(t => t.Slug == slug)) return;
-
-        var tenant = new Tenant { Slug = slug, Name = name, Currency = currency };
-        db.Tenants.Add(tenant);
-        await db.SaveChangesAsync();
+        Tenant tenant;
+        await using (var owner = Db.Owner(config, current))
+        {
+            if (await owner.Tenants.AnyAsync(t => t.Slug == slug)) return;
+            tenant = new Tenant { Slug = slug, Name = name, Currency = currency };
+            owner.Tenants.Add(tenant);
+            await owner.SaveChangesAsync();
+        }
         current.Set(tenant.Id);
+        await using var db = DbApp.Create(config, current);
 
         var rng = new Random(slug.Sum(c => c)); // stable across runs, unlike string.GetHashCode
         var whs = warehouses.Select(w => new Warehouse { Code = w.Code, Name = w.Name, City = w.City }).ToList();
@@ -106,6 +113,7 @@ public static class DemoSeeder
 
         await db.SaveChangesAsync();
         await OpeningStock(db, current, rng, whs);
+        await Purchasing(db, current, rng, whs);
         Console.WriteLine($"Seeded {slug}: {whs.Count} warehouses, {made} products, {suppliers} suppliers, {customers} customers");
     }
 
@@ -141,6 +149,122 @@ public static class DemoSeeder
             }
             await ledger.PostAsync(new PostRequest(OperationKind.Adjustment, "ADJ", changes, Reason: "opening",
                 Note: "Opening balance"), default);
+        }
+    }
+
+    /// <summary>Approval thresholds, reorder rules, and purchase orders in every status, made by
+    /// the people whose job it is (purchasing creates, finance and the owner approve, the
+    /// warehouse receives), through the same service the API uses.</summary>
+    static async Task Purchasing(AppDbContext db, CurrentUser current, Random rng, List<Warehouse> warehouses)
+    {
+        var tenant = current.RequiredTenantId;
+        db.ApprovalRules.AddRange(
+            new ApprovalRule { Level = 1, MinTotal = 2_000, Role = Role.Finance },
+            new ApprovalRule { Level = 2, MinTotal = 10_000, Role = Role.Owner });
+        await db.SaveChangesAsync();
+
+        var users = await db.Users.ToDictionaryAsync(u => u.Role);
+        var suppliers = await db.Suppliers.OrderBy(s => s.Code).ToListAsync();
+        var categories = await db.Categories.ToDictionaryAsync(c => c.Id, c => c.Name);
+        // Each category comes from one supplier (by name), falling back to the first.
+        Supplier SupplierFor(Guid? categoryId)
+        {
+            var word = categoryId is { } c ? categories[c].Split(' ')[0] switch
+            {
+                "Beverages" => "Beverage", "Snacks" => "Snack", "Dairy" => "Dairy", "Pantry" => "Pantry",
+                "Household" => "Household", _ => "Personal",
+            } : "";
+            return suppliers.FirstOrDefault(s => s.Name.Contains(word)) ?? suppliers[0];
+        }
+
+        var products = await db.Products.AsNoTracking().Include(p => p.Units).OrderBy(p => p.Sku).ToListAsync();
+        foreach (var w in warehouses)
+            foreach (var p in products.Where(_ => rng.NextDouble() < 0.7))
+            {
+                var pack = p.Units.Select(u => u.Factor).DefaultIfEmpty(1).Max();
+                db.ReorderRules.Add(new ReorderRule
+                {
+                    ProductId = p.Id, WarehouseId = w.Id, SupplierId = SupplierFor(p.CategoryId).Id,
+                    ReorderPoint = pack * rng.Next(4, 12), ReorderQuantity = pack * rng.Next(6, 16),
+                });
+            }
+        await db.SaveChangesAsync();
+
+        var numbers = new DocumentNumbers(db, current);
+        var ledger = new StockLedger(db, current, numbers, new NoNotifier());
+        PurchasingService As(Role role)
+        {
+            current.Set(tenant, users[role].Id, role);
+            return new PurchasingService(db, current, numbers, ledger, new Quantities(db), new WarehouseAccess(db, current));
+        }
+
+        var costs = await db.StockBalances.AsNoTracking().GroupBy(b => b.ProductId)
+            .Select(g => new { g.Key, Cost = g.Max(b => b.AvgCost) }).ToDictionaryAsync(x => x.Key, x => x.Cost);
+        PoInput Order(Supplier supplier, Warehouse w, decimal targetTotal, int expectedInDays)
+        {
+            var pool = products.Where(p => SupplierFor(p.CategoryId).Id == supplier.Id && costs.ContainsKey(p.Id)).ToList();
+            var lines = new List<PoLineInput>();
+            decimal total = 0;
+            foreach (var p in pool.OrderBy(_ => rng.Next()))
+            {
+                if (total >= targetTotal) break;
+                var pack = p.Units.OrderByDescending(u => u.Factor).FirstOrDefault();
+                var unitPrice = Math.Round(costs[p.Id] * (pack?.Factor ?? 1), 2);
+                var quantity = Math.Max(1, Math.Min(40, Math.Ceiling((targetTotal - total) / unitPrice / 2)));
+                lines.Add(new PoLineInput(p.Id, quantity, pack?.Name, unitPrice, null));
+                total += quantity * unitPrice;
+            }
+            return new PoInput(supplier.Id, w.Id, DateOnly.FromDateTime(DateTime.UtcNow).AddDays(expectedInDays), null, lines.ToArray(), null);
+        }
+        Supplier S(string word) => suppliers.FirstOrDefault(s => s.Name.Contains(word)) ?? suppliers[0];
+        var (chi, dal, atl) = (warehouses[0], warehouses[Math.Min(1, warehouses.Count - 1)], warehouses[^1]);
+
+        // 1. A draft still being put together.
+        await As(Role.Purchasing).CreateAsync(Order(S("Snack"), chi, 900, 7), default);
+
+        // 2. Waiting for finance (level 1).
+        var p2 = await As(Role.Purchasing).CreateAsync(Order(S("Beverage"), dal, 4_200, 6), default);
+        await As(Role.Purchasing).SubmitAsync(p2.Id, default);
+
+        // 3. Finance approved; above 10,000 it also needs the owner (level 2).
+        var p3 = await As(Role.Purchasing).CreateAsync(Order(S("Dairy"), chi, 14_500, 5), default);
+        await As(Role.Purchasing).SubmitAsync(p3.Id, default);
+        await As(Role.Finance).ApproveAsync(p3.Id, "Within the dairy budget for Q4", default);
+
+        // 4. Approved and sent to the supplier, arriving in a few days.
+        var p4 = await As(Role.Purchasing).CreateAsync(Order(S("Household"), atl, 1_400, 3), default);
+        await As(Role.Purchasing).SubmitAsync(p4.Id, default);
+        await As(Role.Purchasing).TransitionAsync(p4.Id, (p, now) => p.MarkSent(now), default);
+
+        // 5. Partly delivered: the rest is back-ordered.
+        var p5 = await As(Role.Purchasing).CreateAsync(Order(S("Pantry"), chi, 3_000, -2), default);
+        await As(Role.Purchasing).SubmitAsync(p5.Id, default);
+        await As(Role.Finance).ApproveAsync(p5.Id, null, default);
+        await As(Role.Purchasing).TransitionAsync(p5.Id, (p, now) => p.MarkSent(now), default);
+        await Receive(As(Role.Warehouse), p5.Id, 0.6m);
+
+        // 6. Fully received.
+        var p6 = await As(Role.Purchasing).CreateAsync(Order(S("Personal"), chi, 1_200, -6), default);
+        await As(Role.Purchasing).SubmitAsync(p6.Id, default);
+        await As(Role.Purchasing).TransitionAsync(p6.Id, (p, now) => p.MarkSent(now), default);
+        await Receive(As(Role.Warehouse), p6.Id, 1m);
+
+        current.Set(tenant, users[Role.Owner].Id, Role.Owner);
+        db.ChangeTracker.Clear();
+
+        async Task Receive(PurchasingService svc, Guid id, decimal share)
+        {
+            var po = await svc.Load(id, default);
+            var lines = new List<ReceiveLineInput>();
+            foreach (var l in po.Lines)
+            {
+                var q = Math.Max(1, Math.Round(l.Quantity * share));
+                var p = products.First(x => x.Id == l.ProductId);
+                var expires = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(rng.Next(60, 240));
+                lines.Add(new ReceiveLineInput(l.Id, q, p.TrackBatches ? $"L{expires:yyMMdd}-{rng.Next(10, 99)}" : null, p.TrackBatches ? expires : null));
+            }
+            db.ChangeTracker.Clear();
+            await svc.ReceiveAsync(id, new ReceiveInput(lines.ToArray(), "Delivered by supplier truck", null), default);
         }
     }
 
