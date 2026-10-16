@@ -75,6 +75,61 @@ public sealed class StockLedger(AppDbContext db, CurrentUser user, DocumentNumbe
         }
     }
 
+    /// <summary>
+    /// Promises stock to orders: for each (product, warehouse, wanted quantity), reserves as much
+    /// as is free, up to the wanted quantity, and returns what it got. With
+    /// <paramref name="allOrNothing"/>, any shortfall throws instead and nothing is reserved.
+    /// Must run inside the caller's transaction (the order and its reservation commit together).
+    /// </summary>
+    public async Task<Dictionary<(Guid ProductId, Guid WarehouseId), decimal>> ReserveAsync(
+        IReadOnlyList<(Guid ProductId, Guid WarehouseId, decimal Quantity)> wanted, bool allOrNothing, CancellationToken ct)
+    {
+        RequireTransaction();
+        var got = new Dictionary<(Guid, Guid), decimal>();
+        foreach (var g in wanted.GroupBy(w => (w.ProductId, w.WarehouseId)).OrderBy(g => g.Key.ProductId).ThenBy(g => g.Key.WarehouseId))
+        {
+            var need = g.Sum(x => x.Quantity);
+            if (need <= 0) continue;
+            var bal = await LockBalance(g.Key.ProductId, g.Key.WarehouseId, ct);
+            var take = Math.Min(need, Math.Max(0, bal.Available));
+            if (take < need && allOrNothing)
+            {
+                var product = await db.Products.AsNoTracking().FirstAsync(p => p.Id == g.Key.ProductId, ct);
+                var warehouse = await db.Warehouses.AsNoTracking().FirstAsync(w => w.Id == g.Key.WarehouseId, ct);
+                throw new AppException(409, "insufficient_stock", ("sku", product.Sku), ("warehouse", warehouse.Code),
+                    ("available", Math.Max(0, bal.Available).ToString("0.####")), ("unit", product.BaseUnit));
+            }
+            bal.Reserved += take;
+            bal.UpdatedAt = DateTimeOffset.UtcNow;
+            got[g.Key] = take;
+            pending.Add(new BalanceChanged(bal.ProductId, bal.WarehouseId, bal.OnHand, bal.Reserved));
+        }
+        await db.SaveChangesAsync(ct);
+        return got;
+    }
+
+    /// <summary>Gives reserved stock back (an order cancelled or closed short).</summary>
+    public async Task ReleaseAsync(IReadOnlyList<(Guid ProductId, Guid WarehouseId, decimal Quantity)> released, CancellationToken ct)
+    {
+        RequireTransaction();
+        foreach (var g in released.GroupBy(w => (w.ProductId, w.WarehouseId)).OrderBy(g => g.Key.ProductId).ThenBy(g => g.Key.WarehouseId))
+        {
+            var qty = g.Sum(x => x.Quantity);
+            if (qty <= 0) continue;
+            var bal = await LockBalance(g.Key.ProductId, g.Key.WarehouseId, ct);
+            if (bal.Reserved < qty) throw new InvalidOperationException("Releasing more than is reserved");
+            bal.Reserved -= qty;
+            bal.UpdatedAt = DateTimeOffset.UtcNow;
+            pending.Add(new BalanceChanged(bal.ProductId, bal.WarehouseId, bal.OnHand, bal.Reserved));
+        }
+        await db.SaveChangesAsync(ct);
+    }
+
+    void RequireTransaction()
+    {
+        if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("Reservations must run inside a transaction");
+    }
+
     /// <summary>For callers that post inside their own transaction: send the live updates after committing.</summary>
     public async Task PublishAsync(CancellationToken ct)
     {

@@ -12,6 +12,7 @@ using Tallyard.Api.Modules.Identity;
 using Tallyard.Api.Modules.Inventory;
 using Tallyard.Api.Modules.Partners;
 using Tallyard.Api.Modules.Purchasing;
+using Tallyard.Api.Modules.Sales;
 using Tallyard.Api.Modules.Warehouses;
 using Tallyard.Api.Seed;
 
@@ -27,6 +28,7 @@ builder.Services.AddScoped<StockLedger>();
 builder.Services.AddScoped<Quantities>();
 builder.Services.AddScoped<PurchasingService>();
 builder.Services.AddScoped<Reorder>();
+builder.Services.AddScoped<SalesService>();
 builder.Services.AddSingleton<IStockNotifier, SignalRStockNotifier>();
 builder.Services.AddSignalR();
 builder.Services.AddDbContext<AppDbContext>((sp, o) => Db.Configure(o, config.GetConnectionString("App")!)
@@ -125,6 +127,7 @@ AuditEndpoints.Map(api);
 StockEndpoints.Map(api);
 TransferEndpoints.Map(api);
 PurchasingEndpoints.Map(api);
+SalesEndpoints.Map(api);
 app.MapHub<StockHub>("/hubs/stock");
 api.MapGet("/health", () => Results.Ok(new { ok = true })).AllowAnonymous();
 

@@ -19,6 +19,7 @@ public class ArchitectureTests
         // Identity only for showing who did what.
         ["Inventory"] = ["Catalog", "Warehouses", "Identity"],
         ["Purchasing"] = ["Catalog", "Warehouses", "Identity", "Partners", "Inventory"],
+        ["Sales"] = ["Catalog", "Warehouses", "Identity", "Partners", "Inventory"],
     };
 
     public static TheoryData<string> Modules => new(Allowed.Keys);

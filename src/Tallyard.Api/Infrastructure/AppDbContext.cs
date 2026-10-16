@@ -6,6 +6,7 @@ using Tallyard.Api.Modules.Identity;
 using Tallyard.Api.Modules.Inventory;
 using Tallyard.Api.Modules.Partners;
 using Tallyard.Api.Modules.Purchasing;
+using Tallyard.Api.Modules.Sales;
 using Tallyard.Api.Modules.Warehouses;
 
 namespace Tallyard.Api.Infrastructure;
@@ -38,6 +39,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
     public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
     public DbSet<GoodsReceiptLine> GoodsReceiptLines => Set<GoodsReceiptLine>();
     public DbSet<ReorderRule> ReorderRules => Set<ReorderRule>();
+    public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
+    public DbSet<SalesOrderLine> SalesOrderLines => Set<SalesOrderLine>();
+    public DbSet<Shipment> Shipments => Set<Shipment>();
+    public DbSet<ShipmentLine> ShipmentLines => Set<ShipmentLine>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<PaymentAllocation> PaymentAllocations => Set<PaymentAllocation>();
 
     public override Task<int> SaveChangesAsync(bool acceptAll, CancellationToken ct = default)
     {
@@ -287,6 +296,99 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
             e.HasOne<Supplier>().WithMany().HasForeignKey(x => x.SupplierId).OnDelete(DeleteBehavior.Restrict);
             e.Property(x => x.ReorderPoint).HasPrecision(18, 4);
             e.Property(x => x.ReorderQuantity).HasPrecision(18, 4);
+        });
+
+        b.Entity<SalesOrder>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Number }).IsUnique();
+            e.HasIndex(x => new { x.CustomerId, x.Status });
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Subtotal).HasPrecision(18, 2);
+            e.Property(x => x.TaxTotal).HasPrecision(18, 2);
+            e.Property(x => x.Total).HasPrecision(18, 2);
+            e.HasOne<Customer>().WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.WarehouseId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.SalesOrderId).OnDelete(DeleteBehavior.Cascade);
+            e.Ignore(x => x.Editable);
+            e.Ignore(x => x.Shippable);
+            e.Property(x => x.Version).IsRowVersion();
+        });
+        b.Entity<SalesOrderLine>(e =>
+        {
+            e.HasIndex(x => x.ProductId);
+            e.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            e.Property(x => x.Unit).HasMaxLength(20);
+            foreach (var p in new[] { nameof(SalesOrderLine.Factor), nameof(SalesOrderLine.Quantity), nameof(SalesOrderLine.UnitPrice),
+                         nameof(SalesOrderLine.ReservedBase), nameof(SalesOrderLine.ShippedBase), nameof(SalesOrderLine.InvoicedBase) })
+                e.Property(p).HasPrecision(18, 4);
+            e.Property(x => x.DiscountPercent).HasPrecision(5, 2);
+            e.Property(x => x.TaxRate).HasPrecision(5, 2);
+            e.Property(x => x.Net).HasPrecision(18, 2);
+            e.Property(x => x.Tax).HasPrecision(18, 2);
+            e.Ignore(x => x.OrderedBase);
+            e.Ignore(x => x.BackorderedBase);
+            e.Ignore(x => x.BaseUnitNet);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("ck_so_lines_quantity", "quantity > 0 AND factor > 0 AND unit_price >= 0");
+                t.HasCheckConstraint("ck_so_lines_discount", "discount_percent BETWEEN 0 AND 100");
+                // Reserved plus shipped never exceeds what was ordered; billed never exceeds shipped.
+                t.HasCheckConstraint("ck_so_lines_fulfilment",
+                    "reserved_base >= 0 AND shipped_base >= 0 AND reserved_base + shipped_base <= quantity * factor AND invoiced_base <= shipped_base");
+            });
+        });
+        b.Entity<Shipment>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Number }).IsUnique();
+            e.HasIndex(x => x.SalesOrderId);
+            e.HasIndex(x => x.InvoiceId);
+            e.HasOne<SalesOrder>().WithMany().HasForeignKey(x => x.SalesOrderId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.ShipmentId);
+        });
+        b.Entity<ShipmentLine>(e => e.Property(x => x.QuantityBase).HasPrecision(18, 4));
+        b.Entity<Invoice>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Number }).IsUnique();
+            e.HasIndex(x => new { x.CustomerId, x.Status, x.DueDate });
+            // One invoice per shipment, enforced by the database as well.
+            e.HasIndex(x => x.ShipmentId).IsUnique();
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Subtotal).HasPrecision(18, 2);
+            e.Property(x => x.TaxTotal).HasPrecision(18, 2);
+            e.Property(x => x.Total).HasPrecision(18, 2);
+            e.Property(x => x.AmountPaid).HasPrecision(18, 2);
+            e.HasOne<Customer>().WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.InvoiceId);
+            e.Ignore(x => x.Balance);
+            e.Property(x => x.Version).IsRowVersion();
+            e.ToTable(t => t.HasCheckConstraint("ck_invoices_paid", "amount_paid >= 0 AND amount_paid <= total"));
+        });
+        b.Entity<InvoiceLine>(e =>
+        {
+            e.Property(x => x.Unit).HasMaxLength(20);
+            e.Property(x => x.Quantity).HasPrecision(18, 4);
+            e.Property(x => x.UnitPrice).HasPrecision(18, 4);
+            e.Property(x => x.DiscountPercent).HasPrecision(5, 2);
+            e.Property(x => x.TaxRate).HasPrecision(5, 2);
+            e.Property(x => x.Net).HasPrecision(18, 2);
+            e.Property(x => x.Tax).HasPrecision(18, 2);
+        });
+        b.Entity<Payment>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Number }).IsUnique();
+            e.HasIndex(x => x.CustomerId);
+            e.Property(x => x.Method).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Amount).HasPrecision(18, 2);
+            e.HasOne<Customer>().WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Allocations).WithOne().HasForeignKey(x => x.PaymentId);
+            e.ToTable(t => t.HasCheckConstraint("ck_payments_amount", "amount > 0"));
+        });
+        b.Entity<PaymentAllocation>(e =>
+        {
+            e.HasIndex(x => x.InvoiceId);
+            e.HasOne<Invoice>().WithMany().HasForeignKey(x => x.InvoiceId).OnDelete(DeleteBehavior.Restrict);
+            e.Property(x => x.Amount).HasPrecision(18, 2);
+            e.ToTable(t => t.HasCheckConstraint("ck_payment_allocations_amount", "amount > 0"));
         });
 
         b.Entity<AuditLog>(e =>

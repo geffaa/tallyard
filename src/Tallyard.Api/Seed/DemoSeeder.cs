@@ -6,6 +6,7 @@ using Tallyard.Api.Modules.Identity;
 using Tallyard.Api.Modules.Inventory;
 using Tallyard.Api.Modules.Partners;
 using Tallyard.Api.Modules.Purchasing;
+using Tallyard.Api.Modules.Sales;
 using Tallyard.Api.Modules.Warehouses;
 
 namespace Tallyard.Api.Seed;
@@ -114,6 +115,7 @@ public static class DemoSeeder
         await db.SaveChangesAsync();
         await OpeningStock(db, current, rng, whs);
         await Purchasing(db, current, rng, whs);
+        await Sales(db, current, rng, whs, slug == "harborpine" ? 70 : 12);
         Console.WriteLine($"Seeded {slug}: {whs.Count} warehouses, {made} products, {suppliers} suppliers, {customers} customers");
     }
 
@@ -266,6 +268,88 @@ public static class DemoSeeder
             db.ChangeTracker.Clear();
             await svc.ReceiveAsync(id, new ReceiveInput(lines.ToArray(), "Delivered by supplier truck", null), default);
         }
+    }
+
+    /// <summary>
+    /// About four months of selling, each order taken as far as its age suggests: older orders
+    /// are shipped, invoiced and mostly paid; recent ones are partly shipped, reserved, on hold or
+    /// still drafts. Some invoices are left unpaid past their due date so receivables have an age.
+    /// </summary>
+    static async Task Sales(AppDbContext db, CurrentUser current, Random rng, List<Warehouse> warehouses, int count)
+    {
+        var tenant = current.RequiredTenantId;
+        var users = await db.Users.ToDictionaryAsync(u => u.Role);
+        var customers = await db.Customers.OrderBy(c => c.Code).ToListAsync();
+        var products = await db.Products.AsNoTracking().Include(p => p.Units).ToListAsync();
+        var numbers = new DocumentNumbers(db, current);
+        var ledger = new StockLedger(db, current, numbers, new NoNotifier());
+        SalesService As(Role role)
+        {
+            current.Set(tenant, users[role].Id, role);
+            db.ChangeTracker.Clear();
+            return new SalesService(db, current, numbers, ledger, new Quantities(db), new WarehouseAccess(db, current));
+        }
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        string[] methods = ["BankTransfer", "BankTransfer", "BankTransfer", "Card", "Check", "Cash"];
+
+        for (var i = 0; i < count; i++)
+        {
+            // Spread over ~120 days, more of them recent.
+            // A quarter are from this week, so there is work in progress to look at.
+            var age = i % 4 == 0 ? rng.Next(0, 7) : (int)Math.Round(Math.Pow(rng.NextDouble(), 1.6) * 120);
+            var customer = customers[rng.Next(customers.Count)];
+            var warehouse = warehouses[rng.Next(warehouses.Count)];
+            var stocked = await db.StockBalances.AsNoTracking()
+                .Where(b => b.WarehouseId == warehouse.Id && b.OnHand - b.Reserved > 48).Select(b => b.ProductId).ToListAsync();
+            if (stocked.Count < 6) continue;
+            var lines = stocked.OrderBy(_ => rng.Next()).Take(rng.Next(2, 7)).Select(id =>
+            {
+                var p = products.First(x => x.Id == id);
+                var pack = p.Units.OrderByDescending(u => u.Factor).FirstOrDefault();
+                var useCase = pack is not null && rng.NextDouble() < 0.7;
+                return new SoLineInput(id, useCase ? rng.Next(1, 4) : rng.Next(6, 30), useCase ? pack!.Name : p.BaseUnit, null,
+                    rng.NextDouble() < 0.2 ? 5 : 0, null);
+            }).ToArray();
+
+            var sales = As(Role.Sales);
+            var so = await sales.CreateAsync(new SoInput(customer.Id, warehouse.Id, today.AddDays(-age + 3),
+                rng.NextDouble() < 0.5 ? $"PO-{rng.Next(1000, 9999)}" : null, null, lines, null), default);
+            so.OrderDate = today.AddDays(-age);
+            await db.SaveChangesAsync();
+            if (age <= 1 && rng.NextDouble() < 0.5) continue; // still a draft
+
+            so = await As(Role.Sales).ConfirmAsync(so.Id, allowBackorder: true, default);
+            if (so.Status == SoStatus.OnHold)
+            {
+                if (age <= 3) continue; // waiting for finance
+                so = await As(Role.Finance).ReleaseAsync(so.Id, customer.CreditLimit == 0 ? "Paid in advance" : "Long-standing customer, approved", default);
+            }
+            if (age <= 3) continue; // confirmed and reserved, not shipped yet
+
+            // Ship: everything reserved for older orders, about half for recent ones.
+            var share = age > 7 ? 1m : 0.5m;
+            var ship = so.Lines.Where(l => l.ReservedBase > 0)
+                .Select(l => new ShipLineInput(l.Id, Math.Max(1, Math.Floor(l.ReservedBase / l.Factor * share)))).ToArray();
+            if (ship.Length == 0) continue;
+            // The warehouse clerk works in the first warehouse only; elsewhere the owner ships.
+            var shipper = warehouse.Id == warehouses[0].Id ? Role.Warehouse : Role.Owner;
+            var shipment = await As(shipper).ShipAsync(so.Id, new ShipInput(ship, rng.NextDouble() < 0.5 ? "Own fleet" : "Midwest Freight", null, null), default);
+            var invoice = await As(Role.Finance).InvoiceAsync(shipment.Id, today.AddDays(-Math.Max(0, age - 2)), default);
+
+            // Older invoices are mostly paid; some are left overdue.
+            var paidChance = age > 60 ? 0.85 : age > 30 ? 0.6 : 0.25;
+            if (rng.NextDouble() < paidChance)
+            {
+                var full = rng.NextDouble() < 0.85;
+                var amount = full ? invoice.Total : Math.Round(invoice.Total * 0.5m, 2);
+                var paidOn = invoice.IssueDate.AddDays(rng.Next(3, Math.Max(4, customer.PaymentTermsDays + 10)));
+                await As(Role.Finance).PayAsync(new PaymentInput(customer.Id, amount, paidOn < today ? paidOn : today,
+                    methods[rng.Next(methods.Length)], $"REF{rng.Next(100000, 999999)}",
+                    [new PaymentAllocationInput(invoice.Id, amount)]), default);
+            }
+        }
+        current.Set(tenant, users[Role.Owner].Id, Role.Owner);
+        db.ChangeTracker.Clear();
     }
 
     sealed class NoNotifier : IStockNotifier

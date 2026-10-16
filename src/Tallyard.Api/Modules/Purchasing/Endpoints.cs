@@ -123,13 +123,15 @@ public static class PurchasingEndpoints
             var warehouse = await db.Warehouses.AsNoTracking().FirstAsync(w => w.Id == po.WarehouseId, ct);
             var ids = po.Lines.Select(l => l.ProductId).ToList();
             var products = await db.Products.AsNoTracking().Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id, ct);
-            var bytes = PoPdf.Render(new PdfOrder(po.Number, po.OrderDate, po.ExpectedOn, tenant.Currency,
-                new PdfParty(tenant.Name, null, null, null, null),
+            var bytes = DocumentPdf.Render(new PdfDoc("Purchase order", po.Number, tenant.Currency,
+                new PdfParty(tenant.Name, null, null, null, null), "Supplier",
                 new PdfParty(supplier.Name, supplier.Address, supplier.Email, supplier.Phone, supplier.TaxId),
-                string.Join(", ", new[] { warehouse.Name, warehouse.Address, warehouse.City }.Where(x => !string.IsNullOrWhiteSpace(x))),
+                "Deliver to", string.Join(", ", new[] { warehouse.Name, warehouse.Address, warehouse.City }.Where(x => !string.IsNullOrWhiteSpace(x))),
+                [("Order date", po.OrderDate.ToString("yyyy-MM-dd")), .. po.ExpectedOn is { } e ? new[] { ("Expected", e.ToString("yyyy-MM-dd")) } : [],
+                 ("Payment terms", $"{supplier.PaymentTermsDays} days")],
                 po.Note,
                 po.Lines.Select(l => new PdfLine(products[l.ProductId].Sku, products[l.ProductId].Name, l.Quantity, l.Unit, l.UnitPrice, l.TaxRate, l.Net)).ToList(),
-                po.Subtotal, po.TaxTotal, po.Total, supplier.PaymentTermsDays));
+                po.Subtotal, po.TaxTotal, po.Total, $"Please quote {po.Number} on your invoice and delivery note."));
             return Results.File(bytes, "application/pdf", $"{po.Number}.pdf");
         }).RequireAuthorization(Perm.ViewCosts);
 

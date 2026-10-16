@@ -1380,6 +1380,591 @@ namespace Tallyard.Api.Infrastructure.Migrations
                     b.ToTable("reorder_rules", (string)null);
                 });
 
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Invoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount_paid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("customer_id");
+
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("due_date");
+
+                    b.Property<DateOnly>("IssueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("issue_date");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("SalesOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sales_order_id");
+
+                    b.Property<Guid>("ShipmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shipment_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("subtotal");
+
+                    b.Property<decimal>("TaxTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("tax_total");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoices");
+
+                    b.HasIndex("ShipmentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_shipment_id");
+
+                    b.HasIndex("TenantId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_tenant_id_number");
+
+                    b.HasIndex("CustomerId", "Status", "DueDate")
+                        .HasDatabaseName("ix_invoices_customer_id_status_due_date");
+
+                    b.ToTable("invoices", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_invoices_paid", "amount_paid >= 0 AND amount_paid <= total");
+                        });
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.InvoiceLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("discount_percent");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<decimal>("Net")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("net");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("quantity");
+
+                    b.Property<decimal>("Tax")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("tax");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("tax_rate");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("unit");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("unit_price");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_lines");
+
+                    b.HasIndex("InvoiceId")
+                        .HasDatabaseName("ix_invoice_lines_invoice_id");
+
+                    b.ToTable("invoice_lines", (string)null);
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("customer_id");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("method");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<DateOnly>("ReceivedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("received_on");
+
+                    b.Property<Guid?>("RecordedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recorded_by");
+
+                    b.Property<string>("Reference")
+                        .HasColumnType("text")
+                        .HasColumnName("reference");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payments");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("ix_payments_customer_id");
+
+                    b.HasIndex("TenantId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payments_tenant_id_number");
+
+                    b.ToTable("payments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payments_amount", "amount > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.PaymentAllocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_allocations");
+
+                    b.HasIndex("InvoiceId")
+                        .HasDatabaseName("ix_payment_allocations_invoice_id");
+
+                    b.HasIndex("PaymentId")
+                        .HasDatabaseName("ix_payment_allocations_payment_id");
+
+                    b.ToTable("payment_allocations", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_allocations_amount", "amount > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.SalesOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<DateTimeOffset?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("customer_id");
+
+                    b.Property<string>("CustomerReference")
+                        .HasColumnType("text")
+                        .HasColumnName("customer_reference");
+
+                    b.Property<string>("HoldReason")
+                        .HasColumnType("text")
+                        .HasColumnName("hold_reason");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<DateOnly>("OrderDate")
+                        .HasColumnType("date")
+                        .HasColumnName("order_date");
+
+                    b.Property<string>("ReleaseNote")
+                        .HasColumnType("text")
+                        .HasColumnName("release_note");
+
+                    b.Property<DateTimeOffset?>("ReleasedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("released_at");
+
+                    b.Property<Guid?>("ReleasedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("released_by");
+
+                    b.Property<DateOnly?>("RequestedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("requested_on");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("subtotal");
+
+                    b.Property<decimal>("TaxTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("tax_total");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("warehouse_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sales_orders");
+
+                    b.HasIndex("WarehouseId")
+                        .HasDatabaseName("ix_sales_orders_warehouse_id");
+
+                    b.HasIndex("CustomerId", "Status")
+                        .HasDatabaseName("ix_sales_orders_customer_id_status");
+
+                    b.HasIndex("TenantId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sales_orders_tenant_id_number");
+
+                    b.ToTable("sales_orders", (string)null);
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.SalesOrderLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("discount_percent");
+
+                    b.Property<decimal>("Factor")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("factor");
+
+                    b.Property<decimal>("InvoicedBase")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("invoiced_base");
+
+                    b.Property<decimal>("Net")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("net");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("quantity");
+
+                    b.Property<decimal>("ReservedBase")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("reserved_base");
+
+                    b.Property<Guid>("SalesOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sales_order_id");
+
+                    b.Property<decimal>("ShippedBase")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("shipped_base");
+
+                    b.Property<decimal>("Tax")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("tax");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("tax_rate");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("unit");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("unit_price");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sales_order_lines");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_sales_order_lines_product_id");
+
+                    b.HasIndex("SalesOrderId")
+                        .HasDatabaseName("ix_sales_order_lines_sales_order_id");
+
+                    b.ToTable("sales_order_lines", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_so_lines_discount", "discount_percent BETWEEN 0 AND 100");
+
+                            t.HasCheckConstraint("ck_so_lines_fulfilment", "reserved_base >= 0 AND shipped_base >= 0 AND reserved_base + shipped_base <= quantity * factor AND invoiced_base <= shipped_base");
+
+                            t.HasCheckConstraint("ck_so_lines_quantity", "quantity > 0 AND factor > 0 AND unit_price >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Shipment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Carrier")
+                        .HasColumnType("text")
+                        .HasColumnName("carrier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("customer_id");
+
+                    b.Property<Guid?>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("SalesOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sales_order_id");
+
+                    b.Property<DateTimeOffset>("ShippedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shipped_at");
+
+                    b.Property<Guid?>("ShippedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shipped_by");
+
+                    b.Property<Guid>("StockOperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("stock_operation_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("TrackingNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("tracking_number");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("warehouse_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_shipments");
+
+                    b.HasIndex("InvoiceId")
+                        .HasDatabaseName("ix_shipments_invoice_id");
+
+                    b.HasIndex("SalesOrderId")
+                        .HasDatabaseName("ix_shipments_sales_order_id");
+
+                    b.HasIndex("TenantId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_shipments_tenant_id_number");
+
+                    b.ToTable("shipments", (string)null);
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.ShipmentLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BatchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("batch_id");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<decimal>("QuantityBase")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("quantity_base");
+
+                    b.Property<Guid>("SalesOrderLineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sales_order_line_id");
+
+                    b.Property<Guid>("ShipmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shipment_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_shipment_lines");
+
+                    b.HasIndex("ShipmentId")
+                        .HasDatabaseName("ix_shipment_lines_shipment_id");
+
+                    b.ToTable("shipment_lines", (string)null);
+                });
+
             modelBuilder.Entity("Tallyard.Api.Modules.Warehouses.Warehouse", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1680,6 +2265,107 @@ namespace Tallyard.Api.Infrastructure.Migrations
                         .HasConstraintName("fk_reorder_rules_warehouses_warehouse_id");
                 });
 
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Invoice", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Partners.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoices_customers_customer_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.InvoiceLine", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Sales.Invoice", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_lines_invoices_invoice_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Payment", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Partners.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_customers_customer_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.PaymentAllocation", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Sales.Invoice", null)
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_allocations_invoices_invoice_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Sales.Payment", null)
+                        .WithMany("Allocations")
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_allocations_payments_payment_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.SalesOrder", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Partners.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_sales_orders_customers_customer_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_sales_orders_warehouses_warehouse_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.SalesOrderLine", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Catalog.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_sales_order_lines_products_product_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Sales.SalesOrder", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("SalesOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sales_order_lines_sales_orders_sales_order_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Shipment", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Sales.SalesOrder", null)
+                        .WithMany()
+                        .HasForeignKey("SalesOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipments_sales_orders_sales_order_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.ShipmentLine", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Sales.Shipment", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("ShipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipment_lines_shipments_shipment_id");
+                });
+
             modelBuilder.Entity("Tallyard.Api.Modules.Catalog.Product", b =>
                 {
                     b.Navigation("Barcodes");
@@ -1711,6 +2397,26 @@ namespace Tallyard.Api.Infrastructure.Migrations
                 {
                     b.Navigation("Approvals");
 
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Invoice", b =>
+                {
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Payment", b =>
+                {
+                    b.Navigation("Allocations");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.SalesOrder", b =>
+                {
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Sales.Shipment", b =>
+                {
                     b.Navigation("Lines");
                 });
 #pragma warning restore 612, 618

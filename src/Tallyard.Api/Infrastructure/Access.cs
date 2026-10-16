@@ -22,6 +22,13 @@ public static class Perm
     /// <summary>May act on an approval step; which step is decided by the approval rules.</summary>
     public const string ApprovePurchaseOrders = nameof(ApprovePurchaseOrders);
     public const string ReceiveGoods = nameof(ReceiveGoods);
+    public const string ViewSales = nameof(ViewSales);
+    /// <summary>Selling prices and invoice amounts (warehouse staff ship by quantity only).</summary>
+    public const string ViewSalesPrices = nameof(ViewSalesPrices);
+    public const string EditSalesOrders = nameof(EditSalesOrders);
+    public const string ReleaseCreditHolds = nameof(ReleaseCreditHolds);
+    public const string ShipOrders = nameof(ShipOrders);
+    public const string ManageReceivables = nameof(ManageReceivables);
 
     public static readonly Dictionary<string, Role[]> Roles = new()
     {
@@ -38,6 +45,12 @@ public static class Perm
         [EditPurchaseOrders] = [Role.Owner, Role.Purchasing],
         [ApprovePurchaseOrders] = [Role.Owner, Role.Finance, Role.Purchasing],
         [ReceiveGoods] = [Role.Owner, Role.Warehouse],
+        [ViewSales] = [Role.Owner, Role.Sales, Role.Finance, Role.Warehouse],
+        [ViewSalesPrices] = [Role.Owner, Role.Sales, Role.Finance],
+        [EditSalesOrders] = [Role.Owner, Role.Sales],
+        [ReleaseCreditHolds] = [Role.Owner, Role.Finance],
+        [ShipOrders] = [Role.Owner, Role.Warehouse],
+        [ManageReceivables] = [Role.Owner, Role.Finance],
     };
 
     public static bool Has(Role role, string perm) => Roles[perm].Contains(role);
