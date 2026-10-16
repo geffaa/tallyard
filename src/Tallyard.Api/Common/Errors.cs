@@ -42,6 +42,15 @@ public static class Messages
         ["code_taken"] = ("Code {code} is already used", "Kode {code} sudah dipakai"),
         ["stale_record"] = ("Someone else changed this record. Reload and try again.",
                             "Data ini baru diubah orang lain. Muat ulang lalu coba lagi."),
+        ["insufficient_stock"] = ("Not enough {sku} in {warehouse}: {available} {unit} available",
+                                  "Stok {sku} di {warehouse} tidak cukup: tersedia {available} {unit}"),
+        ["batch_required"] = ("{sku} is batch-tracked: enter a batch number", "{sku} dilacak per batch: isi nomor batch"),
+        ["batch_not_tracked"] = ("{sku} is not batch-tracked", "{sku} tidak dilacak per batch"),
+        ["batch_not_found"] = ("Batch {batch} not found", "Batch {batch} tidak ditemukan"),
+        ["batch_expiry_mismatch"] = ("Batch {batch} already exists with expiry {expiry}", "Batch {batch} sudah ada dengan kedaluwarsa {expiry}"),
+        ["unknown_unit"] = ("{sku} has no unit \"{unit}\"", "{sku} tidak punya satuan \"{unit}\""),
+        ["transfer_not_found"] = ("Transfer not found", "Transfer tidak ditemukan"),
+        ["transfer_not_in_transit"] = ("This transfer was already received", "Transfer ini sudah diterima"),
         ["server_error"] = ("Something went wrong. Try again.", "Terjadi kesalahan. Coba lagi."),
     };
 

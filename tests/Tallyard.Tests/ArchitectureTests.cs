@@ -16,6 +16,8 @@ public class ArchitectureTests
         ["Catalog"] = [],
         ["Partners"] = [],
         ["Audit"] = [],
+        // Identity only for showing who did what.
+        ["Inventory"] = ["Catalog", "Warehouses", "Identity"],
     };
 
     public static TheoryData<string> Modules => new(Allowed.Keys);

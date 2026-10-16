@@ -10,6 +10,14 @@ namespace Tallyard.Api.Infrastructure.Migrations
     /// </summary>
     public partial class Security : Migration
     {
+        // Frozen list: the tables that existed at this migration. Later migrations enable RLS on
+        // their own tables (a test checks that every tenant_id table has it).
+        static readonly string[] Tables =
+        [
+            "users", "user_warehouses", "warehouses", "categories", "products", "product_units",
+            "product_barcodes", "suppliers", "customers", "audit_logs",
+        ];
+
         protected override void Up(MigrationBuilder mb)
         {
             // Audit log, partitioned by month (EF created a plain table; nothing is in it yet).
@@ -51,7 +59,7 @@ namespace Tallyard.Api.Infrastructure.Migrations
 
             // Row-level security: rows are visible and writable only for the tenant in app.tenant_id.
             // Not FORCEd, so the owner role (migrations, seeding) is unaffected; the app role is not the owner.
-            foreach (var table in AppDbContext.TenantTables)
+            foreach (var table in Tables)
                 mb.Sql($"""
                     ALTER TABLE {table} ENABLE ROW LEVEL SECURITY;
                     CREATE POLICY tenant_isolation ON {table}
@@ -77,7 +85,7 @@ namespace Tallyard.Api.Infrastructure.Migrations
 
         protected override void Down(MigrationBuilder mb)
         {
-            foreach (var table in AppDbContext.TenantTables)
+            foreach (var table in Tables)
                 mb.Sql($"DROP POLICY IF EXISTS tenant_isolation ON {table}; ALTER TABLE {table} DISABLE ROW LEVEL SECURITY;");
             mb.Sql("""
                 DROP TABLE audit_logs;

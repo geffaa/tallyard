@@ -3,6 +3,7 @@ using Tallyard.Api.Common;
 using Tallyard.Api.Modules.Audit;
 using Tallyard.Api.Modules.Catalog;
 using Tallyard.Api.Modules.Identity;
+using Tallyard.Api.Modules.Inventory;
 using Tallyard.Api.Modules.Partners;
 using Tallyard.Api.Modules.Warehouses;
 
@@ -21,13 +22,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-
-    /// <summary>Tables with a tenant_id column; migrations enable RLS on exactly these.</summary>
-    public static readonly string[] TenantTables =
-    [
-        "users", "user_warehouses", "warehouses", "categories", "products", "product_units",
-        "product_barcodes", "suppliers", "customers", "audit_logs",
-    ];
+    public DbSet<DocumentSequence> DocumentSequences => Set<DocumentSequence>();
+    public DbSet<Batch> Batches => Set<Batch>();
+    public DbSet<StockBalance> StockBalances => Set<StockBalance>();
+    public DbSet<BatchBalance> BatchBalances => Set<BatchBalance>();
+    public DbSet<StockOperation> StockOperations => Set<StockOperation>();
+    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+    public DbSet<Transfer> Transfers => Set<Transfer>();
+    public DbSet<TransferLine> TransferLines => Set<TransferLine>();
 
     public override Task<int> SaveChangesAsync(bool acceptAll, CancellationToken ct = default)
     {
@@ -122,6 +124,89 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
             e.Property(x => x.CreditLimit).HasPrecision(18, 2);
             e.Property(x => x.Version).IsRowVersion();
             e.ToTable(t => t.HasCheckConstraint("ck_customers_credit_limit", "credit_limit >= 0"));
+        });
+
+        b.Entity<DocumentSequence>(e =>
+        {
+            e.HasKey(x => new { x.TenantId, x.Prefix, x.Year });
+            e.Property(x => x.Prefix).HasMaxLength(10);
+        });
+
+        b.Entity<Batch>(e =>
+        {
+            e.HasIndex(x => new { x.ProductId, x.Number }).IsUnique();
+            e.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId);
+            e.Property(x => x.Number).HasMaxLength(40);
+        });
+
+        b.Entity<StockBalance>(e =>
+        {
+            e.HasKey(x => new { x.ProductId, x.WarehouseId });
+            e.HasIndex(x => new { x.TenantId, x.WarehouseId });
+            e.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.WarehouseId);
+            e.Property(x => x.OnHand).HasPrecision(18, 4);
+            e.Property(x => x.Reserved).HasPrecision(18, 4);
+            e.Property(x => x.AvgCost).HasPrecision(18, 4);
+            e.Ignore(x => x.Available);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("ck_stock_balances_on_hand", "on_hand >= 0");
+                t.HasCheckConstraint("ck_stock_balances_reserved", "reserved >= 0 AND reserved <= on_hand");
+                t.HasCheckConstraint("ck_stock_balances_avg_cost", "avg_cost >= 0");
+            });
+        });
+
+        b.Entity<BatchBalance>(e =>
+        {
+            e.HasKey(x => new { x.WarehouseId, x.BatchId });
+            e.HasIndex(x => new { x.ProductId, x.WarehouseId });
+            e.HasOne<Batch>().WithMany().HasForeignKey(x => x.BatchId);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.WarehouseId);
+            e.Property(x => x.OnHand).HasPrecision(18, 4);
+            e.ToTable(t => t.HasCheckConstraint("ck_batch_balances_on_hand", "on_hand >= 0"));
+        });
+
+        b.Entity<StockOperation>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.IdempotencyKey }).IsUnique().HasFilter("idempotency_key IS NOT NULL");
+            e.HasIndex(x => new { x.TenantId, x.Number });
+            e.HasIndex(x => new { x.SourceType, x.SourceId });
+            e.Property(x => x.Kind).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Number).HasMaxLength(30);
+            e.Property(x => x.IdempotencyKey).HasMaxLength(100);
+            e.HasMany(x => x.Movements).WithOne().HasForeignKey(x => x.OperationId);
+        });
+
+        b.Entity<StockMovement>(e =>
+        {
+            // The stock card: one product in one warehouse, newest first.
+            e.HasIndex(x => new { x.ProductId, x.WarehouseId, x.CreatedAt });
+            e.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.WarehouseId);
+            e.HasOne<Batch>().WithMany().HasForeignKey(x => x.BatchId);
+            e.Property(x => x.Quantity).HasPrecision(18, 4);
+            e.Property(x => x.UnitCost).HasPrecision(18, 4);
+            e.Property(x => x.BalanceAfter).HasPrecision(18, 4);
+            e.ToTable(t => t.HasCheckConstraint("ck_stock_movements_quantity", "quantity <> 0"));
+        });
+
+        b.Entity<Transfer>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Number }).IsUnique();
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.TransferId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.FromWarehouseId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.ToWarehouseId).OnDelete(DeleteBehavior.Restrict);
+            e.Property(x => x.Version).IsRowVersion();
+            e.ToTable(t => t.HasCheckConstraint("ck_transfers_different_warehouses", "from_warehouse_id <> to_warehouse_id"));
+        });
+        b.Entity<TransferLine>(e =>
+        {
+            e.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId);
+            e.Property(x => x.Quantity).HasPrecision(18, 4);
+            e.Property(x => x.UnitCost).HasPrecision(18, 4);
+            e.ToTable(t => t.HasCheckConstraint("ck_transfer_lines_quantity", "quantity > 0"));
         });
 
         b.Entity<AuditLog>(e =>

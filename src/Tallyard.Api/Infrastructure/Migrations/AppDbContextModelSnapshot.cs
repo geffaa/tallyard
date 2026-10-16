@@ -23,6 +23,31 @@ namespace Tallyard.Api.Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Tallyard.Api.Infrastructure.DocumentSequence", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Prefix")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("prefix");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.Property<int>("LastValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_value");
+
+                    b.HasKey("TenantId", "Prefix", "Year")
+                        .HasName("pk_document_sequences");
+
+                    b.ToTable("document_sequences", (string)null);
+                });
+
             modelBuilder.Entity("Tallyard.Api.Modules.Audit.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -75,7 +100,6 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Catalog.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -109,7 +133,6 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Catalog.Product", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -196,7 +219,6 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Catalog.ProductBarcode", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -233,7 +255,6 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Catalog.ProductUnit", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -271,7 +292,6 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Identity.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -309,7 +329,6 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Identity.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -393,10 +412,400 @@ namespace Tallyard.Api.Infrastructure.Migrations
                     b.ToTable("user_warehouses", (string)null);
                 });
 
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.Batch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly?>("ExpiresOn")
+                        .HasColumnType("date")
+                        .HasColumnName("expires_on");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_batches");
+
+                    b.HasIndex("ProductId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_batches_product_id_number");
+
+                    b.ToTable("batches", (string)null);
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.BatchBalance", b =>
+                {
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("warehouse_id");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("batch_id");
+
+                    b.Property<decimal>("OnHand")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("on_hand");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("WarehouseId", "BatchId")
+                        .HasName("pk_batch_balances");
+
+                    b.HasIndex("BatchId")
+                        .HasDatabaseName("ix_batch_balances_batch_id");
+
+                    b.HasIndex("ProductId", "WarehouseId")
+                        .HasDatabaseName("ix_batch_balances_product_id_warehouse_id");
+
+                    b.ToTable("batch_balances", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_batch_balances_on_hand", "on_hand >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockBalance", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("warehouse_id");
+
+                    b.Property<decimal>("AvgCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("avg_cost");
+
+                    b.Property<decimal>("OnHand")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("on_hand");
+
+                    b.Property<decimal>("Reserved")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("reserved");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("ProductId", "WarehouseId")
+                        .HasName("pk_stock_balances");
+
+                    b.HasIndex("WarehouseId")
+                        .HasDatabaseName("ix_stock_balances_warehouse_id");
+
+                    b.HasIndex("TenantId", "WarehouseId")
+                        .HasDatabaseName("ix_stock_balances_tenant_id_warehouse_id");
+
+                    b.ToTable("stock_balances", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_stock_balances_avg_cost", "avg_cost >= 0");
+
+                            t.HasCheckConstraint("ck_stock_balances_on_hand", "on_hand >= 0");
+
+                            t.HasCheckConstraint("ck_stock_balances_reserved", "reserved >= 0 AND reserved <= on_hand");
+                        });
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("BalanceAfter")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("balance_after");
+
+                    b.Property<Guid?>("BatchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("batch_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operation_id");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("quantity");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("UnitCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("unit_cost");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("warehouse_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_stock_movements");
+
+                    b.HasIndex("BatchId")
+                        .HasDatabaseName("ix_stock_movements_batch_id");
+
+                    b.HasIndex("OperationId")
+                        .HasDatabaseName("ix_stock_movements_operation_id");
+
+                    b.HasIndex("WarehouseId")
+                        .HasDatabaseName("ix_stock_movements_warehouse_id");
+
+                    b.HasIndex("ProductId", "WarehouseId", "CreatedAt")
+                        .HasDatabaseName("ix_stock_movements_product_id_warehouse_id_created_at");
+
+                    b.ToTable("stock_movements", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_stock_movements_quantity", "quantity <> 0");
+                        });
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("IdempotencyKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("idempotency_key");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("number");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid?>("SourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_id");
+
+                    b.Property<string>("SourceType")
+                        .HasColumnType("text")
+                        .HasColumnName("source_type");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_stock_operations");
+
+                    b.HasIndex("SourceType", "SourceId")
+                        .HasDatabaseName("ix_stock_operations_source_type_source_id");
+
+                    b.HasIndex("TenantId", "IdempotencyKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_stock_operations_tenant_id_idempotency_key")
+                        .HasFilter("idempotency_key IS NOT NULL");
+
+                    b.HasIndex("TenantId", "Number")
+                        .HasDatabaseName("ix_stock_operations_tenant_id_number");
+
+                    b.ToTable("stock_operations", (string)null);
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.Transfer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("FromWarehouseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("from_warehouse_id");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<DateTimeOffset?>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("received_at");
+
+                    b.Property<Guid?>("ReceivedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("received_by");
+
+                    b.Property<DateTimeOffset>("ShippedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shipped_at");
+
+                    b.Property<Guid?>("ShippedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shipped_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("ToWarehouseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_warehouse_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_transfers");
+
+                    b.HasIndex("FromWarehouseId")
+                        .HasDatabaseName("ix_transfers_from_warehouse_id");
+
+                    b.HasIndex("ToWarehouseId")
+                        .HasDatabaseName("ix_transfers_to_warehouse_id");
+
+                    b.HasIndex("TenantId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_transfers_tenant_id_number");
+
+                    b.ToTable("transfers", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_transfers_different_warehouses", "from_warehouse_id <> to_warehouse_id");
+                        });
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.TransferLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BatchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("batch_id");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("quantity");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("TransferId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("transfer_id");
+
+                    b.Property<decimal>("UnitCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("unit_cost");
+
+                    b.HasKey("Id")
+                        .HasName("pk_transfer_lines");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_transfer_lines_product_id");
+
+                    b.HasIndex("TransferId")
+                        .HasDatabaseName("ix_transfer_lines_transfer_id");
+
+                    b.ToTable("transfer_lines", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_transfer_lines_quantity", "quantity > 0");
+                        });
+                });
+
             modelBuilder.Entity("Tallyard.Api.Modules.Partners.Customer", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -473,7 +882,6 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Partners.Supplier", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -546,7 +954,6 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Warehouses.Warehouse", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -649,6 +1056,113 @@ namespace Tallyard.Api.Infrastructure.Migrations
                         .HasConstraintName("fk_user_warehouses_warehouses_warehouse_id");
                 });
 
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.Batch", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Catalog.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_batches_products_product_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.BatchBalance", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Inventory.Batch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_batch_balances_batches_batch_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_batch_balances_warehouses_warehouse_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockBalance", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Catalog.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_balances_products_product_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_balances_warehouses_warehouse_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockMovement", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Inventory.Batch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .HasConstraintName("fk_stock_movements_batches_batch_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Inventory.StockOperation", null)
+                        .WithMany("Movements")
+                        .HasForeignKey("OperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_movements_stock_operations_operation_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Catalog.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_movements_products_product_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_movements_warehouses_warehouse_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.Transfer", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("FromWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_transfers_warehouses_from_warehouse_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("ToWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_transfers_warehouses_to_warehouse_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.TransferLine", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Catalog.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_transfer_lines_products_product_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Inventory.Transfer", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("TransferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_transfer_lines_transfers_transfer_id");
+                });
+
             modelBuilder.Entity("Tallyard.Api.Modules.Catalog.Product", b =>
                 {
                     b.Navigation("Barcodes");
@@ -659,6 +1173,16 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Identity.User", b =>
                 {
                     b.Navigation("Warehouses");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockOperation", b =>
+                {
+                    b.Navigation("Movements");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.Transfer", b =>
+                {
+                    b.Navigation("Lines");
                 });
 #pragma warning restore 612, 618
         }

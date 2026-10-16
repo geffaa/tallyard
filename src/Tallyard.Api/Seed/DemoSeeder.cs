@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Tallyard.Api.Infrastructure;
 using Tallyard.Api.Modules.Catalog;
 using Tallyard.Api.Modules.Identity;
+using Tallyard.Api.Modules.Inventory;
 using Tallyard.Api.Modules.Partners;
 using Tallyard.Api.Modules.Warehouses;
 
@@ -104,7 +105,48 @@ public static class DemoSeeder
             });
 
         await db.SaveChangesAsync();
+        await OpeningStock(db, current, rng, whs);
         Console.WriteLine($"Seeded {slug}: {whs.Count} warehouses, {made} products, {suppliers} suppliers, {customers} customers");
+    }
+
+    /// <summary>Opening balances through the real ledger (same code path as the app), one
+    /// "opening" adjustment per warehouse. Some products are out of stock and some batches expire
+    /// soon, so the screens have something to flag.</summary>
+    static async Task OpeningStock(AppDbContext db, CurrentUser current, Random rng, List<Warehouse> warehouses)
+    {
+        var owner = await db.Users.FirstAsync(u => u.Role == Role.Owner);
+        current.Set(current.RequiredTenantId, owner.Id, Role.Owner);
+        var ledger = new StockLedger(db, current, new DocumentNumbers(db, current), new NoNotifier());
+        var products = await db.Products.AsNoTracking().OrderBy(p => p.Sku).ToListAsync();
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        foreach (var w in warehouses)
+        {
+            var changes = new List<StockChange>();
+            foreach (var p in products)
+            {
+                if (rng.NextDouble() < 0.08) continue; // out of stock here
+                var cost = Math.Round(p.SalePrice * (decimal)(0.58 + rng.NextDouble() * 0.17), 4);
+                if (!p.TrackBatches)
+                {
+                    changes.Add(new StockChange(p.Id, w.Id, rng.Next(6, 60) * 12, UnitCost: cost));
+                    continue;
+                }
+                for (var i = 0; i < rng.Next(1, 4); i++)
+                {
+                    var expires = today.AddDays(rng.NextDouble() < 0.15 ? rng.Next(3, 25) : rng.Next(30, 200));
+                    var batch = await ledger.BatchAsync(p.Id, $"L{expires:yyMMdd}-{rng.Next(10, 99)}", expires, default);
+                    changes.Add(new StockChange(p.Id, w.Id, rng.Next(2, 30) * 6, batch.Id, cost));
+                }
+            }
+            await ledger.PostAsync(new PostRequest(OperationKind.Adjustment, "ADJ", changes, Reason: "opening",
+                Note: "Opening balance"), default);
+        }
+    }
+
+    sealed class NoNotifier : IStockNotifier
+    {
+        public Task BalancesChangedAsync(Guid tenantId, IReadOnlyList<BalanceChanged> changes, CancellationToken ct) => Task.CompletedTask;
     }
 
     static string Gtin(Random rng)
