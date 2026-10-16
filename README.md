@@ -7,9 +7,15 @@ order-to-cash, with an AI layer that turns supplier documents into draft orders.
 deliberately not a full ERP (no general ledger, HR or payroll); it goes deep on the three flows
 where distributors lose money. Full plan: [BREAKDOWN.md](BREAKDOWN.md) (Indonesian).
 
-**Status:** milestone 1 of 6 done: tenants isolated by Postgres row-level security, roles and
-per-warehouse access, an append-only audit log, and master data (products with pack sizes and
-barcodes, warehouses, suppliers, customers). Next: the stock ledger (M2).
+**Status:** milestones 1–2 of 6 done.
+- **Foundation:** tenants isolated by Postgres row-level security, roles and per-warehouse
+  access, an append-only audit log, master data (products with pack sizes and barcodes,
+  warehouses, suppliers, customers).
+- **Stock ledger:** balances per warehouse under row locks, batches with expiry picked
+  earliest-expiry-first, moving average cost, adjustments, transfers with an in-transit state,
+  a stock card per product, and a stock matrix that updates live (SignalR).
+
+Next: purchasing (M3).
 
 ## Stack
 
@@ -71,6 +77,16 @@ connects as a role that is not the table owner):
 - **Data integrity:** optimistic concurrency (saving over someone else's change is refused), a
   barcode belongs to one product, child changes (barcodes, pack sizes) appear in the product's
   history.
+- **Stock under concurrency:** 50 parallel requests to take 1 unit of a product with 10 in
+  stock: exactly 10 succeed, 40 get `insufficient_stock`, the balance ends at 0.
+- **Ledger invariants:** every balance equals the sum of its movements; batch balances sum to
+  the product balance; movements can't be updated even in SQL; a negative balance violates a
+  `CHECK` constraint.
+- **Idempotency:** five concurrent submits with the same key post once; receiving a transfer
+  twice at the same moment posts once (the second gets `409`).
+- **FEFO and costing:** issues take the batch that expires first; receiving at a different cost
+  updates the moving average; warehouse staff never see costs.
+- **RLS coverage:** a test fails if any table with a `tenant_id` column lacks row-level security.
 - **Module boundaries:** each module may only depend on the modules it is allowed to.
 
 ## Design decisions
@@ -93,6 +109,20 @@ connects as a role that is not the table owner):
 - **Errors with stable codes, in the request's language.** `{ code, detail, errors }` where
   `detail` follows `Accept-Language` (English/Indonesian) and `errors` uses the JSON field paths
   the client sent (`units[0].factor`), so the form can put each message under its field.
+- **One code path changes stock.** `StockLedger.PostAsync` locks the balance rows it touches in a
+  fixed order (product, then warehouse, so two postings can't deadlock), checks free stock, writes
+  append-only movements and updates the balances in one transaction. `CHECK (on_hand >= 0)` and
+  `CHECK (reserved <= on_hand)` back it up: a bug fails the transaction instead of corrupting stock.
+- **Pessimistic locks for stock, optimistic for master data.** A popular product is updated by
+  many people at once; row locks queue them instead of failing most with retries. Master data is
+  edited rarely, so it uses a version check (`xmin`) and tells the user someone else saved first.
+- **Gap-free document numbers.** `ADJ-2026-000042` comes from a counter row incremented with an
+  upsert inside the posting's transaction: concurrent documents wait for each other and a
+  rolled-back document gives its number back.
+- **In transit is a real state.** Shipping a transfer takes stock out of the source; it is in
+  neither warehouse until the destination receives it, at the cost it left with.
+- **Live without leaking.** After a posting commits, the changed balances (quantities only, never
+  costs) go to the tenant's SignalR group; the browser ignores warehouses it doesn't show.
 - **Typed end to end.** The web app's API types are generated from the OpenAPI document
   (`npm run api:types`); JSON numbers are strict, so money is `number`, never `number | string`.
 - **Interface text in two languages without a library.** Typed dictionaries: the Indonesian

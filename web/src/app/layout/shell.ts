@@ -11,6 +11,8 @@ import {
   Menu,
   Package,
   ScrollText,
+  SlidersHorizontal,
+  ClipboardList,
   ShoppingCart,
   Truck,
   Users,
@@ -28,6 +30,8 @@ interface NavItem {
   icon: LucideIconData;
   perm?: Permission;
   soon?: boolean;
+  /** Highlight only on this exact path (its sub-pages have their own item). */
+  exact?: boolean;
 }
 
 @Component({
@@ -79,6 +83,7 @@ interface NavItem {
                 <a
                   [routerLink]="item.path"
                   routerLinkActive="active"
+                  [routerLinkActiveOptions]="{ exact: !!item.exact }"
                   class="nav-link group relative flex items-center gap-2.5 h-9 px-2.5 rounded-md hover:bg-rail-2 hover:text-white"
                 >
                   <lucide-icon [img]="item.icon" [size]="16" />
@@ -145,6 +150,14 @@ export class Shell {
 
   private all: { title: MessageKey; items: NavItem[] }[] = [
     {
+      title: 'nav.inventory',
+      items: [
+        { path: '/stock', label: 'nav.inventory', icon: Boxes, exact: true },
+        { path: '/stock/adjustments', label: 'nav.adjustments', icon: SlidersHorizontal },
+        { path: '/transfers', label: 'nav.transfers', icon: ArrowLeftRight },
+      ],
+    },
+    {
       title: 'nav.masterData',
       items: [
         { path: '/products', label: 'nav.products', icon: Package },
@@ -156,8 +169,7 @@ export class Shell {
     {
       title: 'nav.soon',
       items: [
-        { path: '/stock', label: 'nav.inventory', icon: Boxes, soon: true },
-        { path: '/purchasing', label: 'nav.purchasing', icon: ArrowLeftRight, soon: true },
+        { path: '/purchasing', label: 'nav.purchasing', icon: ClipboardList, soon: true },
         { path: '/sales', label: 'nav.sales', icon: ShoppingCart, soon: true },
       ],
     },

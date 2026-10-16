@@ -7,9 +7,15 @@ order-to-cash, dengan lapisan AI yang mengubah dokumen supplier menjadi draft pe
 bukan ERP penuh (tanpa buku besar, HR, atau payroll); fokus mendalam di tiga alur yang paling
 sering membuat distributor rugi. Rencana lengkap: [BREAKDOWN.md](BREAKDOWN.md).
 
-**Status:** milestone 1 dari 6 selesai: tenant terisolasi dengan row-level security Postgres,
-peran dan akses per gudang, audit log append-only, dan data master (produk dengan kemasan dan
-barcode, gudang, supplier, pelanggan). Berikutnya: ledger stok (M2).
+**Status:** milestone 1–2 dari 6 selesai.
+- **Fondasi:** tenant terisolasi dengan row-level security Postgres, peran dan akses per gudang,
+  audit log append-only, data master (produk dengan kemasan dan barcode, gudang, supplier,
+  pelanggan).
+- **Ledger stok:** saldo per gudang dengan row lock, batch dengan kedaluwarsa yang diambil
+  berdasarkan kedaluwarsa terdekat (FEFO), HPP rata-rata bergerak, penyesuaian, transfer dengan
+  status dalam perjalanan, kartu stok per produk, dan matriks stok yang ter-update live (SignalR).
+
+Berikutnya: pembelian (M3).
 
 ## Stack
 
@@ -70,6 +76,15 @@ aplikasi terhubung sebagai role yang bukan pemilik tabel):
   sesinya di request berikutnya; Owner terakhir tidak bisa diturunkan perannya.
 - **Integritas data:** optimistic concurrency (menimpa perubahan orang lain ditolak), satu barcode
   hanya untuk satu produk, perubahan anak (barcode, kemasan) tercatat di riwayat produk.
+- **Stok di bawah konkurensi:** 50 request paralel mengambil 1 unit dari produk berstok 10:
+  tepat 10 berhasil, 40 mendapat `insufficient_stock`, saldo akhir 0.
+- **Invariant ledger:** setiap saldo sama dengan jumlah mutasinya; saldo batch berjumlah sama
+  dengan saldo produk; mutasi tidak bisa diubah bahkan lewat SQL; saldo negatif melanggar `CHECK`.
+- **Idempotensi:** lima submit bersamaan dengan key yang sama hanya diposting sekali; menerima
+  transfer dua kali di saat yang sama hanya diposting sekali (yang kedua mendapat `409`).
+- **FEFO dan HPP:** pengeluaran mengambil batch yang paling cepat kedaluwarsa; penerimaan dengan
+  harga berbeda memperbarui HPP rata-rata; staf gudang tidak pernah melihat harga.
+- **Cakupan RLS:** tes gagal jika ada tabel ber-kolom `tenant_id` tanpa row-level security.
 - **Batas modul:** setiap modul hanya boleh bergantung pada modul yang diizinkan.
 
 ## Keputusan desain
@@ -92,6 +107,21 @@ aplikasi terhubung sebagai role yang bukan pemilik tabel):
 - **Error dengan kode tetap, dalam bahasa request.** `{ code, detail, errors }`: `detail` mengikuti
   `Accept-Language` (Inggris/Indonesia) dan `errors` memakai path field JSON yang dikirim klien
   (`units[0].factor`), sehingga form bisa menaruh pesan di bawah field-nya.
+- **Satu jalur kode yang mengubah stok.** `StockLedger.PostAsync` mengunci baris saldo yang
+  disentuh dengan urutan tetap (produk, lalu gudang, agar dua posting tidak deadlock), memeriksa
+  stok bebas, menulis mutasi append-only, dan memperbarui saldo dalam satu transaksi.
+  `CHECK (on_hand >= 0)` dan `CHECK (reserved <= on_hand)` menjadi pengaman: bug menggagalkan
+  transaksi, bukan merusak stok.
+- **Lock pesimis untuk stok, optimis untuk data master.** Produk laris diubah banyak orang
+  bersamaan; row lock mengantrekan mereka alih-alih menggagalkan sebagian besar. Data master
+  jarang diubah, jadi memakai cek versi (`xmin`) dan memberi tahu jika orang lain menyimpan duluan.
+- **Nomor dokumen tanpa celah.** `ADJ-2026-000042` berasal dari baris counter yang dinaikkan
+  dengan upsert di dalam transaksi posting: dokumen bersamaan saling menunggu, dan dokumen yang
+  di-rollback mengembalikan nomornya.
+- **Dalam perjalanan adalah status nyata.** Mengirim transfer mengeluarkan stok dari gudang
+  asal; stok tidak ada di gudang mana pun sampai gudang tujuan menerimanya, dengan HPP saat keluar.
+- **Live tanpa bocor.** Setelah posting tersimpan, saldo yang berubah (kuantitas saja, tanpa
+  harga) dikirim ke grup SignalR tenant; browser mengabaikan gudang yang tidak ditampilkan.
 - **Bertipe dari ujung ke ujung.** Tipe API di web di-generate dari dokumen OpenAPI
   (`npm run api:types`); angka JSON strict, sehingga uang bertipe `number`, bukan `number | string`.
 - **Teks antarmuka dua bahasa tanpa library.** Kamus bertipe: tabel Indonesia wajib punya kunci

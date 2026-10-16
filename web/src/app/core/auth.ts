@@ -9,7 +9,10 @@ export type Permission =
   | 'EditCatalog'
   | 'EditSuppliers'
   | 'EditCustomers'
-  | 'ViewAudit';
+  | 'ViewAudit'
+  | 'AdjustStock'
+  | 'TransferStock'
+  | 'ViewCosts';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {

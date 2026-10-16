@@ -206,7 +206,7 @@ Prinsip:
 - Master data produk/satuan/barcode, gudang, supplier, pelanggan
 - Generator data demo
 
-**M2 — Inventory inti (±3 hari)**
+**M2 — Inventory inti (±3 hari)** ✅ selesai
 - `StockLedger`, saldo, kartu stok, adjustment, transfer, batch/FEFO
 - Tes konkurensi dan tes invariant ledger
 - Matriks stok dan update live (SignalR)

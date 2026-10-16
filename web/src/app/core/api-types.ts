@@ -268,6 +268,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/warehouses/directory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WarehouseRef"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/warehouses/{id}": {
         parameters: {
             query?: never;
@@ -807,10 +842,339 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/stock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number;
+                    PageSize?: number;
+                    Q?: string;
+                    WarehouseId?: string;
+                    Filter?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfStockRow"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stock/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    productId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProductStock"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stock/{productId}/movements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    warehouseId?: string;
+                    page?: number;
+                };
+                header?: never;
+                path: {
+                    productId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfMovementDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stock/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfOperationDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AdjustmentInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transfers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: string;
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfTransferListItem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TransferInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transfers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TransferDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transfers/{id}/receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TransferDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AdjustmentInput: {
+            /** Format: uuid */
+            warehouseId: string;
+            reason: string;
+            note: null | string;
+            lines: components["schemas"]["AdjustmentLine"][];
+            idempotencyKey: null | string;
+        };
+        AdjustmentLine: {
+            /** Format: uuid */
+            productId: string;
+            /** Format: double */
+            quantity: number;
+            unit: null | string;
+            batchNumber: null | string;
+            /** Format: date */
+            expiresOn: null | string;
+            /** Format: double */
+            unitCost: null | number;
+        };
         AuditDto: {
             /** Format: uuid */
             id: string;
@@ -826,6 +1190,17 @@ export interface components {
         BarcodeDto: {
             code: string;
             unit: null | string;
+        };
+        BatchStock: {
+            /** Format: uuid */
+            batchId: string;
+            number: string;
+            /** Format: date */
+            expiresOn: null | string;
+            /** Format: uuid */
+            warehouseId: string;
+            /** Format: double */
+            onHand: number;
         };
         CategoryDto: {
             /** Format: uuid */
@@ -852,8 +1227,64 @@ export interface components {
             allWarehouses: boolean;
             warehouseIds: string[];
         };
+        MovementDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            createdAt: string;
+            number: string;
+            kind: string;
+            reason: null | string;
+            note: null | string;
+            sourceType: null | string;
+            /** Format: uuid */
+            sourceId: null | string;
+            /** Format: uuid */
+            warehouseId: string;
+            warehouse: string;
+            batch: null | string;
+            /** Format: double */
+            quantity: number;
+            /** Format: double */
+            balanceAfter: number;
+            /** Format: double */
+            unitCost: null | number;
+            user: null | string;
+        };
+        OperationDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            kind: string;
+            reason: null | string;
+            note: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            user: null | string;
+            /** Format: int32 */
+            lines: number;
+            warehouse: null | string;
+        };
         PageOfAuditDto: {
             items: components["schemas"]["AuditDto"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        PageOfMovementDto: {
+            items: components["schemas"]["MovementDto"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        PageOfOperationDto: {
+            items: components["schemas"]["OperationDto"][];
             /** Format: int32 */
             total: number;
             /** Format: int32 */
@@ -872,6 +1303,24 @@ export interface components {
         };
         PageOfProductListItem: {
             items: components["schemas"]["ProductListItem"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        PageOfStockRow: {
+            items: components["schemas"]["StockRow"][];
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            pageNumber: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        PageOfTransferListItem: {
+            items: components["schemas"]["TransferListItem"][];
             /** Format: int32 */
             total: number;
             /** Format: int32 */
@@ -974,12 +1423,124 @@ export interface components {
             trackBatches: boolean;
             isActive: boolean;
         };
+        ProductStock: {
+            /** Format: uuid */
+            productId: string;
+            sku: string;
+            name: string;
+            baseUnit: string;
+            trackBatches: boolean;
+            warehouses: components["schemas"]["StockWarehouse"][];
+            batches: components["schemas"]["BatchStock"][];
+        };
+        StockCell: {
+            /** Format: uuid */
+            warehouseId: string;
+            /** Format: double */
+            onHand: number;
+            /** Format: double */
+            reserved: number;
+        };
+        StockRow: {
+            /** Format: uuid */
+            productId: string;
+            sku: string;
+            name: string;
+            baseUnit: string;
+            trackBatches: boolean;
+            /** Format: double */
+            onHand: number;
+            /** Format: double */
+            reserved: number;
+            /** Format: double */
+            value: null | number;
+            cells: components["schemas"]["StockCell"][];
+        };
+        StockWarehouse: {
+            /** Format: uuid */
+            warehouseId: string;
+            code: string;
+            name: string;
+            /** Format: double */
+            onHand: number;
+            /** Format: double */
+            reserved: number;
+            /** Format: double */
+            available: number;
+            /** Format: double */
+            avgCost: null | number;
+        };
         TenantInfo: {
             /** Format: uuid */
             id: string;
             slug: string;
             name: string;
             currency: string;
+        };
+        TransferDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            status: string;
+            /** Format: uuid */
+            fromWarehouseId: string;
+            from: string;
+            /** Format: uuid */
+            toWarehouseId: string;
+            to: string;
+            note: null | string;
+            /** Format: date-time */
+            shippedAt: string;
+            shippedBy: null | string;
+            /** Format: date-time */
+            receivedAt: null | string;
+            receivedBy: null | string;
+            lines: components["schemas"]["TransferLineDto"][];
+            /** Format: uint32 */
+            version: number;
+        };
+        TransferInput: {
+            /** Format: uuid */
+            fromWarehouseId: string;
+            /** Format: uuid */
+            toWarehouseId: string;
+            note: null | string;
+            lines: components["schemas"]["TransferLineInput"][];
+            idempotencyKey: null | string;
+        };
+        TransferLineDto: {
+            /** Format: uuid */
+            productId: string;
+            sku: string;
+            name: string;
+            baseUnit: string;
+            batch: null | string;
+            /** Format: date */
+            expiresOn: null | string;
+            /** Format: double */
+            quantity: number;
+        };
+        TransferLineInput: {
+            /** Format: uuid */
+            productId: string;
+            /** Format: double */
+            quantity: number;
+            unit: null | string;
+            batchNumber: null | string;
+        };
+        TransferListItem: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            status: string;
+            from: string;
+            to: string;
+            /** Format: int32 */
+            lines: number;
+            /** Format: date-time */
+            shippedAt: string;
+            /** Format: date-time */
+            receivedAt: null | string;
         };
         UnitDto: {
             name: string;
@@ -1028,6 +1589,12 @@ export interface components {
             isActive: boolean;
             /** Format: uint32 */
             version: null | number;
+        };
+        WarehouseRef: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
         };
     };
     responses: never;

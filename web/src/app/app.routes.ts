@@ -8,10 +8,25 @@ export const routes: Routes = [
     canActivate: [signedIn],
     loadComponent: () => import('./layout/shell').then((m) => m.Shell),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'products' },
+      { path: '', pathMatch: 'full', redirectTo: 'stock' },
       { path: 'products', loadComponent: () => import('./pages/products/list').then((m) => m.ProductsPage) },
       { path: 'products/new', loadComponent: () => import('./pages/products/form').then((m) => m.ProductForm) },
       { path: 'products/:id', loadComponent: () => import('./pages/products/form').then((m) => m.ProductForm) },
+      { path: 'stock', loadComponent: () => import('./pages/stock/list').then((m) => m.StockPage) },
+      {
+        path: 'stock/adjust',
+        canActivate: [requires('AdjustStock')],
+        loadComponent: () => import('./pages/stock/adjust').then((m) => m.AdjustPage),
+      },
+      { path: 'stock/adjustments', loadComponent: () => import('./pages/stock/adjustments').then((m) => m.AdjustmentsPage) },
+      { path: 'stock/:id', loadComponent: () => import('./pages/stock/detail').then((m) => m.StockDetailPage) },
+      { path: 'transfers', loadComponent: () => import('./pages/transfers').then((m) => m.TransfersPage) },
+      {
+        path: 'transfers/new',
+        canActivate: [requires('TransferStock')],
+        loadComponent: () => import('./pages/transfers').then((m) => m.TransferNewPage),
+      },
+      { path: 'transfers/:id', loadComponent: () => import('./pages/transfers').then((m) => m.TransferDetailPage) },
       { path: 'warehouses', loadComponent: () => import('./pages/warehouses').then((m) => m.WarehousesPage) },
       {
         path: 'suppliers',

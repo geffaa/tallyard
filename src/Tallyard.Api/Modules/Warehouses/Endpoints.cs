@@ -7,6 +7,8 @@ namespace Tallyard.Api.Modules.Warehouses;
 
 public record WarehouseDto(Guid Id, string Code, string Name, string? City, string? Address, bool IsActive, uint Version);
 
+public record WarehouseRef(Guid Id, string Code, string Name);
+
 public record WarehouseInput(string Code, string Name, string? City, string? Address, bool IsActive, uint? Version);
 
 public static class WarehouseEndpoints
@@ -23,6 +25,12 @@ public static class WarehouseEndpoints
             if (allowed is not null) q = q.Where(w => allowed.Contains(w.Id));
             return await q.OrderBy(w => w.Code).Select(w => ToDto(w)).ToListAsync(ct);
         });
+
+        // Every active warehouse, codes and names only: where stock can be sent, even by someone
+        // who can't see that warehouse's stock.
+        g.MapGet("/directory", (AppDbContext db, CancellationToken ct) =>
+            db.Warehouses.AsNoTracking().Where(w => w.IsActive).OrderBy(w => w.Code)
+                .Select(w => new WarehouseRef(w.Id, w.Code, w.Name)).ToListAsync(ct));
 
         g.MapPost("/", async (WarehouseInput input, AppDbContext db, CancellationToken ct) =>
         {
