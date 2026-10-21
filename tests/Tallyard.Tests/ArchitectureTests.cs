@@ -20,6 +20,8 @@ public class ArchitectureTests
         ["Inventory"] = ["Catalog", "Warehouses", "Identity"],
         ["Purchasing"] = ["Catalog", "Warehouses", "Identity", "Partners", "Inventory"],
         ["Sales"] = ["Catalog", "Warehouses", "Identity", "Partners", "Inventory"],
+        // The assistant reads across modules; nothing depends on it.
+        ["Assistant"] = ["Catalog", "Warehouses", "Identity", "Partners", "Inventory", "Purchasing", "Sales"],
     };
 
     public static TheoryData<string> Modules => new(Allowed.Keys);

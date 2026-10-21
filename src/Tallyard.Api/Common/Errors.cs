@@ -86,6 +86,18 @@ public static class Messages
         ["payment_exceeds_balance"] = ("The payment is more than {number} still owes", "Pembayaran melebihi sisa tagihan {number}"),
         ["payment_unallocated"] = ("The payment must be fully applied to open invoices ({open} open)", "Pembayaran harus dialokasikan penuh ke invoice terbuka ({open} terbuka)"),
         ["release_note_required"] = ("Say why the order may go ahead", "Isi alasan order boleh dilanjutkan"),
+        ["ai_not_configured"] = ("The AI service is not configured (set Ai:GroqApiKey)", "Layanan AI belum dikonfigurasi (isi Ai:GroqApiKey)"),
+        ["ai_unavailable"] = ("The AI service is unavailable right now. Try again shortly.", "Layanan AI sedang tidak tersedia. Coba lagi sebentar."),
+        ["ai_gave_up"] = ("I couldn't answer that with the data I can look up. Try asking more specifically.",
+                          "Saya tidak bisa menjawab itu dengan data yang bisa saya cari. Coba tanyakan lebih spesifik."),
+        ["pdf_no_text"] = ("This PDF is a scan without text. Upload a photo or image of it instead.",
+                           "PDF ini hasil scan tanpa teks. Unggah foto atau gambarnya."),
+        ["pdf_unreadable"] = ("This PDF can't be opened (damaged or password-protected)", "PDF ini tidak bisa dibuka (rusak atau dilindungi password)"),
+        ["unsupported_document"] = ("Supported files: PDF, PNG, JPEG, WebP", "Format didukung: PDF, PNG, JPEG, WebP"),
+        ["file_empty"] = ("The file is empty", "File kosong"),
+        ["file_too_large"] = ("Maximum {mb} MB", "Maksimal {mb} MB"),
+        ["document_not_found"] = ("Document not found", "Dokumen tidak ditemukan"),
+        ["document_not_ready"] = ("This document was not read successfully or is already converted", "Dokumen ini gagal dibaca atau sudah dikonversi"),
         ["server_error"] = ("Something went wrong. Try again.", "Terjadi kesalahan. Coba lagi."),
     };
 

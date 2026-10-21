@@ -1,0 +1,1172 @@
+[
+  {
+    "file": "doc-01-clean.pdf",
+    "style": "clean",
+    "supplier": "Great Lakes Beverage Co.",
+    "number": "INV-1616",
+    "date": "2026-10-15",
+    "total": 752.48,
+    "lines": [
+      {
+        "sku": "BEV-CAL-0121",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 11.52
+      },
+      {
+        "sku": "BEV-LAR-0080",
+        "quantity": 10,
+        "unit": "case",
+        "unitPrice": 22.97
+      },
+      {
+        "sku": "BEV-SAL-0092",
+        "quantity": 23,
+        "unit": "case",
+        "unitPrice": 6.79
+      },
+      {
+        "sku": "BEV-CAL-0219",
+        "quantity": 47,
+        "unit": "can",
+        "unitPrice": 0.38
+      }
+    ]
+  },
+  {
+    "file": "doc-02-abbreviated.pdf",
+    "style": "abbreviated",
+    "supplier": "Evergreen Personal Care",
+    "number": "INV-7180",
+    "date": "2026-10-12",
+    "total": 2273.71,
+    "lines": [
+      {
+        "sku": "PRC-SIL-0011",
+        "quantity": 13,
+        "unit": "case",
+        "unitPrice": 28.74
+      },
+      {
+        "sku": "PRC-SIL-0103",
+        "quantity": 15,
+        "unit": "case",
+        "unitPrice": 19.78
+      },
+      {
+        "sku": "PRC-RED-0200",
+        "quantity": 10,
+        "unit": "case",
+        "unitPrice": 59.73
+      },
+      {
+        "sku": "PRC-BRI-0211",
+        "quantity": 14,
+        "unit": "case",
+        "unitPrice": 44.73
+      },
+      {
+        "sku": "PRC-PIN-0371",
+        "quantity": 12,
+        "unit": "case",
+        "unitPrice": 19.26
+      }
+    ]
+  },
+  {
+    "file": "doc-03-barcode.png",
+    "style": "barcode",
+    "supplier": "Coastal Dairy Cooperative",
+    "number": "609513",
+    "date": "2026-09-06",
+    "total": 2056.34,
+    "lines": [
+      {
+        "sku": "DRY-BRI-0255",
+        "quantity": 27,
+        "unit": "case",
+        "unitPrice": 38.36
+      },
+      {
+        "sku": "DRY-BLU-0367",
+        "quantity": 3,
+        "unit": "case",
+        "unitPrice": 7.15
+      },
+      {
+        "sku": "DRY-RED-0009",
+        "quantity": 19,
+        "unit": "case",
+        "unitPrice": 38.09
+      },
+      {
+        "sku": "DRY-MAR-0217",
+        "quantity": 21,
+        "unit": "case",
+        "unitPrice": 5.33
+      }
+    ]
+  },
+  {
+    "file": "doc-04-european.pdf",
+    "style": "european",
+    "supplier": "Great Lakes Beverage Co.",
+    "number": "RE-42416",
+    "date": "2026-09-07",
+    "total": 3234.19,
+    "lines": [
+      {
+        "sku": "BEV-BRI-0178",
+        "quantity": 25,
+        "unit": "case",
+        "unitPrice": 30.98
+      },
+      {
+        "sku": "BEV-NOR-0169",
+        "quantity": 27,
+        "unit": "case",
+        "unitPrice": 29.85
+      },
+      {
+        "sku": "BEV-SIL-0158",
+        "quantity": 14,
+        "unit": "case",
+        "unitPrice": 42.63
+      },
+      {
+        "sku": "BEV-RED-0311",
+        "quantity": 24,
+        "unit": "case",
+        "unitPrice": 10.74
+      },
+      {
+        "sku": "BEV-OAK-0138",
+        "quantity": 5,
+        "unit": "case",
+        "unitPrice": 36.54
+      },
+      {
+        "sku": "BEV-BRI-0216",
+        "quantity": 1,
+        "unit": "case",
+        "unitPrice": 19.81
+      },
+      {
+        "sku": "BEV-LAR-0163",
+        "quantity": 13,
+        "unit": "case",
+        "unitPrice": 25.39
+      }
+    ]
+  },
+  {
+    "file": "doc-05-clean.pdf",
+    "style": "clean",
+    "supplier": "Riverbend Household Supply",
+    "number": "INV-4238",
+    "date": "2026-10-10",
+    "total": 948.93,
+    "lines": [
+      {
+        "sku": "HHD-LAR-0285",
+        "quantity": 7,
+        "unit": "case",
+        "unitPrice": 16.25
+      },
+      {
+        "sku": "HHD-PIN-0032",
+        "quantity": 28,
+        "unit": "case",
+        "unitPrice": 16.24
+      },
+      {
+        "sku": "HHD-SIL-0399",
+        "quantity": 42,
+        "unit": "box",
+        "unitPrice": 6.19
+      },
+      {
+        "sku": "HHD-SIL-0135",
+        "quantity": 4,
+        "unit": "case",
+        "unitPrice": 14.60
+      }
+    ]
+  },
+  {
+    "file": "doc-06-abbreviated.png",
+    "style": "abbreviated",
+    "supplier": "Riverbend Household Supply",
+    "number": "INV-4796",
+    "date": "2026-09-14",
+    "total": 1656.52,
+    "lines": [
+      {
+        "sku": "HHD-FEN-0310",
+        "quantity": 3,
+        "unit": "case",
+        "unitPrice": 19.95
+      },
+      {
+        "sku": "HHD-LAR-0347",
+        "quantity": 15,
+        "unit": "case",
+        "unitPrice": 47.78
+      },
+      {
+        "sku": "HHD-RED-0021",
+        "quantity": 20,
+        "unit": "case",
+        "unitPrice": 37.83
+      }
+    ]
+  },
+  {
+    "file": "doc-07-barcode.pdf",
+    "style": "barcode",
+    "supplier": "Midland Pantry Partners",
+    "number": "717125",
+    "date": "2026-09-04",
+    "total": 4214.99,
+    "lines": [
+      {
+        "sku": "PAN-KES-0227",
+        "quantity": 12,
+        "unit": "case",
+        "unitPrice": 25.74
+      },
+      {
+        "sku": "PAN-WRE-0130",
+        "quantity": 18,
+        "unit": "case",
+        "unitPrice": 20.08
+      },
+      {
+        "sku": "PAN-HOL-0263",
+        "quantity": 13,
+        "unit": "case",
+        "unitPrice": 12.20
+      },
+      {
+        "sku": "PAN-BLU-0006",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 14.15
+      },
+      {
+        "sku": "PAN-BRI-0220",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 50.05
+      },
+      {
+        "sku": "PAN-KES-0312",
+        "quantity": 13,
+        "unit": "case",
+        "unitPrice": 38.99
+      },
+      {
+        "sku": "PAN-NOR-0303",
+        "quantity": 25,
+        "unit": "case",
+        "unitPrice": 37.37
+      }
+    ]
+  },
+  {
+    "file": "doc-08-european.pdf",
+    "style": "european",
+    "supplier": "Summit Snack Brands",
+    "number": "RE-17257",
+    "date": "2026-09-16",
+    "total": 3398.73,
+    "lines": [
+      {
+        "sku": "SNK-WRE-0270",
+        "quantity": 28,
+        "unit": "case",
+        "unitPrice": 53.10
+      },
+      {
+        "sku": "SNK-HOL-0341",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 24.64
+      },
+      {
+        "sku": "SNK-NOR-0182",
+        "quantity": 2,
+        "unit": "case",
+        "unitPrice": 54.58
+      },
+      {
+        "sku": "SNK-FEN-0221",
+        "quantity": 18,
+        "unit": "case",
+        "unitPrice": 52.21
+      }
+    ]
+  },
+  {
+    "file": "doc-09-clean.png",
+    "style": "clean",
+    "supplier": "Midland Pantry Partners",
+    "number": "INV-6021",
+    "date": "2026-10-11",
+    "total": 2253.11,
+    "lines": [
+      {
+        "sku": "PAN-CAL-0008",
+        "quantity": 14,
+        "unit": "case",
+        "unitPrice": 69.15
+      },
+      {
+        "sku": "PAN-MAR-0369",
+        "quantity": 15,
+        "unit": "case",
+        "unitPrice": 11.46
+      },
+      {
+        "sku": "PAN-PIN-0037",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 20.31
+      },
+      {
+        "sku": "PAN-PIN-0150",
+        "quantity": 51,
+        "unit": "bottle",
+        "unitPrice": 8.15
+      }
+    ]
+  },
+  {
+    "file": "doc-10-abbreviated.pdf",
+    "style": "abbreviated",
+    "supplier": "Evergreen Personal Care",
+    "number": "INV-9073",
+    "date": "2026-10-02",
+    "total": 2762.31,
+    "lines": [
+      {
+        "sku": "PRC-PIN-0371",
+        "quantity": 17,
+        "unit": "case",
+        "unitPrice": 19.26
+      },
+      {
+        "sku": "PRC-RED-0068",
+        "quantity": 1,
+        "unit": "case",
+        "unitPrice": 30.76
+      },
+      {
+        "sku": "PRC-OAK-0128",
+        "quantity": 22,
+        "unit": "case",
+        "unitPrice": 45.96
+      },
+      {
+        "sku": "PRC-RED-0265",
+        "quantity": 27,
+        "unit": "case",
+        "unitPrice": 44.90
+      }
+    ]
+  },
+  {
+    "file": "doc-11-barcode.pdf",
+    "style": "barcode",
+    "supplier": "Summit Snack Brands",
+    "number": "754472",
+    "date": "2026-09-17",
+    "total": 2199.45,
+    "lines": [
+      {
+        "sku": "SNK-KES-0181",
+        "quantity": 24,
+        "unit": "case",
+        "unitPrice": 22.20
+      },
+      {
+        "sku": "SNK-BLU-0339",
+        "quantity": 8,
+        "unit": "case",
+        "unitPrice": 27.69
+      },
+      {
+        "sku": "SNK-MAR-0266",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 49.24
+      }
+    ]
+  },
+  {
+    "file": "doc-12-european.png",
+    "style": "european",
+    "supplier": "Evergreen Personal Care",
+    "number": "RE-37401",
+    "date": "2026-09-23",
+    "total": 3141.16,
+    "lines": [
+      {
+        "sku": "PRC-BLU-0098",
+        "quantity": 3,
+        "unit": "case",
+        "unitPrice": 47.72
+      },
+      {
+        "sku": "PRC-HOL-0055",
+        "quantity": 22,
+        "unit": "case",
+        "unitPrice": 40.17
+      },
+      {
+        "sku": "PRC-HOL-0210",
+        "quantity": 24,
+        "unit": "case",
+        "unitPrice": 35.51
+      },
+      {
+        "sku": "PRC-OAK-0107",
+        "quantity": 14,
+        "unit": "case",
+        "unitPrice": 16.98
+      },
+      {
+        "sku": "PRC-LAR-0276",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 25.13
+      },
+      {
+        "sku": "PRC-NOR-0173",
+        "quantity": 9,
+        "unit": "case",
+        "unitPrice": 18.38
+      }
+    ]
+  },
+  {
+    "file": "doc-13-clean.pdf",
+    "style": "clean",
+    "supplier": "Riverbend Household Supply",
+    "number": "INV-1784",
+    "date": "2026-09-11",
+    "total": 1974.90,
+    "lines": [
+      {
+        "sku": "HHD-FEN-0023",
+        "quantity": 3,
+        "unit": "case",
+        "unitPrice": 47.34
+      },
+      {
+        "sku": "HHD-PIN-0129",
+        "quantity": 54,
+        "unit": "bottle",
+        "unitPrice": 1.47
+      },
+      {
+        "sku": "HHD-SIL-0399",
+        "quantity": 5,
+        "unit": "case",
+        "unitPrice": 37.14
+      },
+      {
+        "sku": "HHD-CAL-0164",
+        "quantity": 21,
+        "unit": "case",
+        "unitPrice": 26.36
+      },
+      {
+        "sku": "HHD-OAK-0378",
+        "quantity": 17,
+        "unit": "case",
+        "unitPrice": 15.97
+      },
+      {
+        "sku": "HHD-FEN-0310",
+        "quantity": 29,
+        "unit": "case",
+        "unitPrice": 19.95
+      }
+    ]
+  },
+  {
+    "file": "doc-14-abbreviated.pdf",
+    "style": "abbreviated",
+    "supplier": "Great Lakes Beverage Co.",
+    "number": "INV-9711",
+    "date": "2026-09-19",
+    "total": 1588.08,
+    "lines": [
+      {
+        "sku": "BEV-NOR-0306",
+        "quantity": 16,
+        "unit": "case",
+        "unitPrice": 9.95
+      },
+      {
+        "sku": "BEV-OAK-0138",
+        "quantity": 29,
+        "unit": "case",
+        "unitPrice": 36.54
+      },
+      {
+        "sku": "BEV-AMB-0089",
+        "quantity": 13,
+        "unit": "case",
+        "unitPrice": 20.41
+      }
+    ]
+  },
+  {
+    "file": "doc-15-barcode.png",
+    "style": "barcode",
+    "supplier": "Midland Pantry Partners",
+    "number": "203831",
+    "date": "2026-10-14",
+    "total": 2569.02,
+    "lines": [
+      {
+        "sku": "PAN-OAK-0248",
+        "quantity": 5,
+        "unit": "case",
+        "unitPrice": 48.51
+      },
+      {
+        "sku": "PAN-SAL-0205",
+        "quantity": 2,
+        "unit": "case",
+        "unitPrice": 49.21
+      },
+      {
+        "sku": "PAN-RED-0186",
+        "quantity": 18,
+        "unit": "case",
+        "unitPrice": 27.47
+      },
+      {
+        "sku": "PAN-KES-0312",
+        "quantity": 25,
+        "unit": "case",
+        "unitPrice": 38.99
+      },
+      {
+        "sku": "PAN-BRI-0029",
+        "quantity": 19,
+        "unit": "case",
+        "unitPrice": 20.98
+      },
+      {
+        "sku": "PAN-LAR-0370",
+        "quantity": 9,
+        "unit": "case",
+        "unitPrice": 21.35
+      }
+    ]
+  },
+  {
+    "file": "doc-16-european.pdf",
+    "style": "european",
+    "supplier": "Great Lakes Beverage Co.",
+    "number": "RE-10959",
+    "date": "2026-09-13",
+    "total": 1039.48,
+    "lines": [
+      {
+        "sku": "BEV-CAL-0161",
+        "quantity": 6,
+        "unit": "case",
+        "unitPrice": 21.44
+      },
+      {
+        "sku": "BEV-NOR-0233",
+        "quantity": 22,
+        "unit": "case",
+        "unitPrice": 27.17
+      },
+      {
+        "sku": "BEV-AMB-0154",
+        "quantity": 15,
+        "unit": "case",
+        "unitPrice": 16.34
+      }
+    ]
+  },
+  {
+    "file": "doc-17-clean.pdf",
+    "style": "clean",
+    "supplier": "Evergreen Personal Care",
+    "number": "INV-6073",
+    "date": "2026-10-14",
+    "total": 1582.54,
+    "lines": [
+      {
+        "sku": "PRC-FEN-0017",
+        "quantity": 10,
+        "unit": "bottle",
+        "unitPrice": 2.99
+      },
+      {
+        "sku": "PRC-LAR-0133",
+        "quantity": 8,
+        "unit": "case",
+        "unitPrice": 35.41
+      },
+      {
+        "sku": "PRC-LAR-0260",
+        "quantity": 19,
+        "unit": "case",
+        "unitPrice": 33.97
+      },
+      {
+        "sku": "PRC-RED-0068",
+        "quantity": 15,
+        "unit": "case",
+        "unitPrice": 30.76
+      }
+    ]
+  },
+  {
+    "file": "doc-18-abbreviated.png",
+    "style": "abbreviated",
+    "supplier": "Summit Snack Brands",
+    "number": "INV-3752",
+    "date": "2026-09-22",
+    "total": 3554.52,
+    "lines": [
+      {
+        "sku": "SNK-CAL-0189",
+        "quantity": 22,
+        "unit": "case",
+        "unitPrice": 38.36
+      },
+      {
+        "sku": "SNK-FEN-0354",
+        "quantity": 27,
+        "unit": "case",
+        "unitPrice": 58.02
+      },
+      {
+        "sku": "SNK-CAL-0108",
+        "quantity": 16,
+        "unit": "case",
+        "unitPrice": 56.97
+      }
+    ]
+  },
+  {
+    "file": "doc-19-barcode.pdf",
+    "style": "barcode",
+    "supplier": "Evergreen Personal Care",
+    "number": "834004",
+    "date": "2026-09-02",
+    "total": 3650.73,
+    "lines": [
+      {
+        "sku": "PRC-BLU-0308",
+        "quantity": 22,
+        "unit": "case",
+        "unitPrice": 57.47
+      },
+      {
+        "sku": "PRC-BRI-0379",
+        "quantity": 13,
+        "unit": "case",
+        "unitPrice": 46.42
+      },
+      {
+        "sku": "PRC-RED-0145",
+        "quantity": 10,
+        "unit": "case",
+        "unitPrice": 20.43
+      },
+      {
+        "sku": "PRC-KES-0337",
+        "quantity": 14,
+        "unit": "case",
+        "unitPrice": 50.02
+      },
+      {
+        "sku": "PRC-LAR-0276",
+        "quantity": 8,
+        "unit": "case",
+        "unitPrice": 25.13
+      },
+      {
+        "sku": "PRC-FEN-0274",
+        "quantity": 8,
+        "unit": "case",
+        "unitPrice": 54.81
+      }
+    ]
+  },
+  {
+    "file": "doc-20-european.pdf",
+    "style": "european",
+    "supplier": "Coastal Dairy Cooperative",
+    "number": "RE-87224",
+    "date": "2026-09-11",
+    "total": 4231.14,
+    "lines": [
+      {
+        "sku": "DRY-RED-0009",
+        "quantity": 19,
+        "unit": "case",
+        "unitPrice": 38.09
+      },
+      {
+        "sku": "DRY-OAK-0235",
+        "quantity": 28,
+        "unit": "case",
+        "unitPrice": 47.49
+      },
+      {
+        "sku": "DRY-LAR-0251",
+        "quantity": 11,
+        "unit": "case",
+        "unitPrice": 6.05
+      },
+      {
+        "sku": "DRY-RED-0123",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 16.85
+      },
+      {
+        "sku": "DRY-KES-0382",
+        "quantity": 18,
+        "unit": "case",
+        "unitPrice": 53.62
+      },
+      {
+        "sku": "DRY-SAL-0384",
+        "quantity": 4,
+        "unit": "case",
+        "unitPrice": 40.75
+      },
+      {
+        "sku": "DRY-BRI-0252",
+        "quantity": 1,
+        "unit": "case",
+        "unitPrice": 13.25
+      },
+      {
+        "sku": "DRY-SIL-0167",
+        "quantity": 11,
+        "unit": "case",
+        "unitPrice": 20.35
+      }
+    ]
+  },
+  {
+    "file": "doc-21-clean.png",
+    "style": "clean",
+    "supplier": "Summit Snack Brands",
+    "number": "INV-7482",
+    "date": "2026-09-29",
+    "total": 5277.12,
+    "lines": [
+      {
+        "sku": "SNK-SAL-0002",
+        "quantity": 19,
+        "unit": "bar",
+        "unitPrice": 2.07
+      },
+      {
+        "sku": "SNK-HOL-0341",
+        "quantity": 14,
+        "unit": "case",
+        "unitPrice": 24.64
+      },
+      {
+        "sku": "SNK-KES-0049",
+        "quantity": 14,
+        "unit": "case",
+        "unitPrice": 36.94
+      },
+      {
+        "sku": "SNK-RED-0287",
+        "quantity": 25,
+        "unit": "case",
+        "unitPrice": 23.56
+      },
+      {
+        "sku": "SNK-CAL-0108",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 56.97
+      },
+      {
+        "sku": "SNK-SIL-0096",
+        "quantity": 21,
+        "unit": "case",
+        "unitPrice": 21.72
+      },
+      {
+        "sku": "SNK-SIL-0162",
+        "quantity": 29,
+        "unit": "case",
+        "unitPrice": 49.33
+      },
+      {
+        "sku": "SNK-HOL-0212",
+        "quantity": 43,
+        "unit": "pack",
+        "unitPrice": 1.71
+      }
+    ]
+  },
+  {
+    "file": "doc-22-abbreviated.pdf",
+    "style": "abbreviated",
+    "supplier": "Coastal Dairy Cooperative",
+    "number": "INV-6048",
+    "date": "2026-09-24",
+    "total": 1577.95,
+    "lines": [
+      {
+        "sku": "DRY-NOR-0070",
+        "quantity": 10,
+        "unit": "case",
+        "unitPrice": 33.98
+      },
+      {
+        "sku": "DRY-LAR-0191",
+        "quantity": 4,
+        "unit": "case",
+        "unitPrice": 43.18
+      },
+      {
+        "sku": "DRY-SIL-0229",
+        "quantity": 20,
+        "unit": "case",
+        "unitPrice": 48.11
+      }
+    ]
+  },
+  {
+    "file": "doc-23-barcode.pdf",
+    "style": "barcode",
+    "supplier": "Summit Snack Brands",
+    "number": "267364",
+    "date": "2026-10-01",
+    "total": 2129.82,
+    "lines": [
+      {
+        "sku": "SNK-MAR-0225",
+        "quantity": 19,
+        "unit": "case",
+        "unitPrice": 56.71
+      },
+      {
+        "sku": "SNK-WRE-0249",
+        "quantity": 1,
+        "unit": "case",
+        "unitPrice": 18.07
+      },
+      {
+        "sku": "SNK-HOL-0124",
+        "quantity": 5,
+        "unit": "case",
+        "unitPrice": 55.78
+      },
+      {
+        "sku": "SNK-SAL-0318",
+        "quantity": 12,
+        "unit": "case",
+        "unitPrice": 23.90
+      },
+      {
+        "sku": "SNK-RED-0094",
+        "quantity": 11,
+        "unit": "case",
+        "unitPrice": 29.93
+      }
+    ]
+  },
+  {
+    "file": "doc-24-european.png",
+    "style": "european",
+    "supplier": "Summit Snack Brands",
+    "number": "RE-65292",
+    "date": "2026-10-03",
+    "total": 1777.85,
+    "lines": [
+      {
+        "sku": "SNK-MAR-0266",
+        "quantity": 8,
+        "unit": "case",
+        "unitPrice": 49.24
+      },
+      {
+        "sku": "SNK-FEN-0234",
+        "quantity": 14,
+        "unit": "case",
+        "unitPrice": 27.19
+      },
+      {
+        "sku": "SNK-RED-0215",
+        "quantity": 2,
+        "unit": "case",
+        "unitPrice": 53.50
+      },
+      {
+        "sku": "SNK-RED-0019",
+        "quantity": 18,
+        "unit": "case",
+        "unitPrice": 22.59
+      },
+      {
+        "sku": "SNK-KES-0228",
+        "quantity": 22,
+        "unit": "case",
+        "unitPrice": 16.97
+      }
+    ]
+  },
+  {
+    "file": "doc-25-clean.pdf",
+    "style": "clean",
+    "supplier": "Evergreen Personal Care",
+    "number": "INV-1377",
+    "date": "2026-10-08",
+    "total": 2738.72,
+    "lines": [
+      {
+        "sku": "PRC-SIL-0103",
+        "quantity": 28,
+        "unit": "case",
+        "unitPrice": 19.78
+      },
+      {
+        "sku": "PRC-HOL-0055",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 40.17
+      },
+      {
+        "sku": "PRC-RED-0200",
+        "quantity": 9,
+        "unit": "case",
+        "unitPrice": 59.73
+      },
+      {
+        "sku": "PRC-PIN-0371",
+        "quantity": 22,
+        "unit": "case",
+        "unitPrice": 19.26
+      }
+    ]
+  },
+  {
+    "file": "doc-26-abbreviated.pdf",
+    "style": "abbreviated",
+    "supplier": "Coastal Dairy Cooperative",
+    "number": "INV-8266",
+    "date": "2026-09-22",
+    "total": 2552.30,
+    "lines": [
+      {
+        "sku": "DRY-MAR-0131",
+        "quantity": 28,
+        "unit": "case",
+        "unitPrice": 44.26
+      },
+      {
+        "sku": "DRY-RED-0009",
+        "quantity": 20,
+        "unit": "case",
+        "unitPrice": 38.09
+      },
+      {
+        "sku": "DRY-BRI-0252",
+        "quantity": 29,
+        "unit": "case",
+        "unitPrice": 13.25
+      }
+    ]
+  },
+  {
+    "file": "doc-27-barcode.png",
+    "style": "barcode",
+    "supplier": "Riverbend Household Supply",
+    "number": "953172",
+    "date": "2026-09-06",
+    "total": 3178.27,
+    "lines": [
+      {
+        "sku": "HHD-PIN-0283",
+        "quantity": 9,
+        "unit": "case",
+        "unitPrice": 32.04
+      },
+      {
+        "sku": "HHD-BRI-0036",
+        "quantity": 22,
+        "unit": "case",
+        "unitPrice": 41.50
+      },
+      {
+        "sku": "HHD-KES-0336",
+        "quantity": 4,
+        "unit": "case",
+        "unitPrice": 20.29
+      },
+      {
+        "sku": "HHD-BRI-0171",
+        "quantity": 28,
+        "unit": "case",
+        "unitPrice": 44.61
+      },
+      {
+        "sku": "HHD-LAR-0285",
+        "quantity": 27,
+        "unit": "case",
+        "unitPrice": 16.25
+      }
+    ]
+  },
+  {
+    "file": "doc-28-european.pdf",
+    "style": "european",
+    "supplier": "Riverbend Household Supply",
+    "number": "RE-77019",
+    "date": "2026-09-20",
+    "total": 2722.45,
+    "lines": [
+      {
+        "sku": "HHD-AMB-0353",
+        "quantity": 11,
+        "unit": "case",
+        "unitPrice": 35.71
+      },
+      {
+        "sku": "HHD-FEN-0023",
+        "quantity": 21,
+        "unit": "case",
+        "unitPrice": 47.34
+      },
+      {
+        "sku": "HHD-AMB-0356",
+        "quantity": 3,
+        "unit": "case",
+        "unitPrice": 36.86
+      },
+      {
+        "sku": "HHD-WRE-0327",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 16.32
+      },
+      {
+        "sku": "HHD-BRI-0036",
+        "quantity": 15,
+        "unit": "case",
+        "unitPrice": 41.50
+      }
+    ]
+  },
+  {
+    "file": "doc-29-clean.pdf",
+    "style": "clean",
+    "supplier": "Riverbend Household Supply",
+    "number": "INV-9857",
+    "date": "2026-09-05",
+    "total": 2305.61,
+    "lines": [
+      {
+        "sku": "HHD-PIN-0184",
+        "quantity": 16,
+        "unit": "case",
+        "unitPrice": 30.92
+      },
+      {
+        "sku": "HHD-SIL-0399",
+        "quantity": 16,
+        "unit": "case",
+        "unitPrice": 37.14
+      },
+      {
+        "sku": "HHD-OAK-0378",
+        "quantity": 10,
+        "unit": "case",
+        "unitPrice": 15.97
+      },
+      {
+        "sku": "HHD-HOL-0014",
+        "quantity": 11,
+        "unit": "case",
+        "unitPrice": 16.41
+      },
+      {
+        "sku": "HHD-BLU-0048",
+        "quantity": 19,
+        "unit": "case",
+        "unitPrice": 38.19
+      }
+    ]
+  },
+  {
+    "file": "doc-30-abbreviated.png",
+    "style": "abbreviated",
+    "supplier": "Coastal Dairy Cooperative",
+    "number": "INV-4165",
+    "date": "2026-10-06",
+    "total": 3680.97,
+    "lines": [
+      {
+        "sku": "DRY-SIL-0368",
+        "quantity": 3,
+        "unit": "case",
+        "unitPrice": 5.44
+      },
+      {
+        "sku": "DRY-CAL-0157",
+        "quantity": 15,
+        "unit": "case",
+        "unitPrice": 33.46
+      },
+      {
+        "sku": "DRY-RED-0123",
+        "quantity": 1,
+        "unit": "case",
+        "unitPrice": 16.85
+      },
+      {
+        "sku": "DRY-OAK-0198",
+        "quantity": 25,
+        "unit": "case",
+        "unitPrice": 7.45
+      },
+      {
+        "sku": "DRY-OAK-0235",
+        "quantity": 21,
+        "unit": "case",
+        "unitPrice": 47.49
+      },
+      {
+        "sku": "DRY-CAL-0166",
+        "quantity": 4,
+        "unit": "case",
+        "unitPrice": 17.97
+      },
+      {
+        "sku": "DRY-RED-0009",
+        "quantity": 29,
+        "unit": "case",
+        "unitPrice": 38.09
+      },
+      {
+        "sku": "DRY-AMB-0015",
+        "quantity": 26,
+        "unit": "case",
+        "unitPrice": 20.31
+      }
+    ]
+  }
+]

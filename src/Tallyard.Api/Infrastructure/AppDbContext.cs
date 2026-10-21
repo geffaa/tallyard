@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Tallyard.Api.Common;
+using Tallyard.Api.Modules.Assistant;
 using Tallyard.Api.Modules.Audit;
 using Tallyard.Api.Modules.Catalog;
 using Tallyard.Api.Modules.Identity;
@@ -47,6 +48,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<PaymentAllocation> PaymentAllocations => Set<PaymentAllocation>();
+    public DbSet<SupplierDocument> SupplierDocuments => Set<SupplierDocument>();
 
     public override Task<int> SaveChangesAsync(bool acceptAll, CancellationToken ct = default)
     {
@@ -389,6 +391,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
             e.HasOne<Invoice>().WithMany().HasForeignKey(x => x.InvoiceId).OnDelete(DeleteBehavior.Restrict);
             e.Property(x => x.Amount).HasPrecision(18, 2);
             e.ToTable(t => t.HasCheckConstraint("ck_payment_allocations_amount", "amount > 0"));
+        });
+
+        b.Entity<SupplierDocument>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.CreatedAt });
+            e.Property(x => x.FileName).HasMaxLength(255);
+            e.Property(x => x.ContentType).HasMaxLength(60);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Result).HasColumnType("jsonb");
+            e.HasOne<PurchaseOrder>().WithMany().HasForeignKey(x => x.PurchaseOrderId).OnDelete(DeleteBehavior.SetNull);
         });
 
         b.Entity<AuditLog>(e =>

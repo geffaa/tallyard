@@ -7,7 +7,7 @@ order-to-cash, with an AI layer that turns supplier documents into draft orders.
 deliberately not a full ERP (no general ledger, HR or payroll); it goes deep on the three flows
 where distributors lose money. Full plan: [BREAKDOWN.md](BREAKDOWN.md) (Indonesian).
 
-**Status:** milestones 1–4 of 6 done.
+**Status:** milestones 1–5 of 6 done.
 - **Foundation:** tenants isolated by Postgres row-level security, roles and per-warehouse
   access, an append-only audit log, master data (products with pack sizes and barcodes,
   warehouses, suppliers, customers).
@@ -23,8 +23,58 @@ where distributors lose money. Full plan: [BREAKDOWN.md](BREAKDOWN.md) (Indonesi
   than 30 days overdue), shipments from reserved stock with FEFO pick lists and a delivery note,
   one invoice per shipment, payments applied oldest-first, and a receivables aging report. The
   demo data holds four months of this history.
+- **AI (Groq, free tier):** supplier invoices and quotations (PDF or photo) read into a draft
+  purchase order on a review screen beside the original; and a chat that answers questions about
+  stock, purchasing and sales from fixed, permission-aware queries, showing the tables behind
+  every answer.
 
-Next: the AI layer (M5): supplier documents to draft orders, and questions about the data.
+Next: polish (M6): Excel import, dashboard, stock counts, demo video.
+
+## AI: measured, not assumed
+
+Supplier-document reading is measured on 30 fictional invoices (20 PDF, 10 PNG, 145 product
+lines) in four styles: clean, abbreviated (`SLVRBRK WHL MLK 1L`, `CS`, supplier item codes),
+with our barcodes, and European number formats. Generated, with the right answers, by
+`dotnet run -- eval-docs generate`; measured by `dotnet run -- eval-docs run`
+([full results](eval/supplier-docs/results.md)).
+
+| Measure | First run | With catalog brands in the prompt |
+|---|---|---|
+| Supplier, document number, date, total read correctly | 100% | 100% |
+| Lines matched to the right product | 92% | **99%** |
+| … abbreviated style only | 63% | **97%** |
+| Lines accepted without a flag | 80% | 92% |
+| **Wrong product with no flag** | **0 of 116** | **0 of 134** |
+| Average time per document | 13.8 s | 12.4 s |
+
+The number that matters most is the last-but-one: a wrong match that nobody is told to check
+would turn into a wrong order. Every line the pipeline wasn't sure about was flagged; the misses
+showed up as "pick the product", never as a confident wrong answer. The first run's misses were
+all abbreviated brands the model had no way to expand (`BLCRST`); giving it the brands we stock
+fixed almost all of them.
+
+How a document is read:
+
+1. **Text:** the PDF's text layer (PdfPig), or for photos a vision model (`qwen3.8-27b` on Groq)
+   transcribes it. Scanned PDFs without text are refused with a request for a photo.
+2. **Extraction:** `gpt-oss-120b` fills a strict JSON schema at temperature 0: header, lines,
+   and freight/discounts as a separate `charges` figure so totals still add up.
+3. **Matching:** item code = our SKU or barcode (a case barcode also tells the unit) → trigram
+   similarity on the expanded description, with the supplier's known range ranked higher →
+   the model chooses among the closest candidates, or says none.
+4. **Checks, not trust:** quantity × price against the line amount, lines plus charges against
+   the subtotal, units against the product's units, and the match method. Each failure is a flag
+   on the review screen. Nothing is ordered until a person creates the draft and it is approved.
+
+The chat never writes SQL. It can call eight fixed tools (stock by warehouse, reorder needs,
+expiring batches, sales summary, sales speed and days of cover, receivables, open purchase
+orders, product search), each running as the person asking: their tenant (RLS), their
+warehouses, and no cost or price columns for roles that can't see them. Answers must use only
+numbers from tool results; the tables are shown under the answer.
+
+Free-tier limits shaped the design: `gpt-oss-120b` allows 8,000 tokens a minute, so tool
+results sent to the model are capped at 15 rows (with the true row count), and the client
+retries rate limits with the delay Groq asks for.
 
 ## Stack
 
@@ -47,6 +97,7 @@ Requires Docker, the .NET 10 SDK and Node 20+.
 docker compose up -d                          # Postgres on :5442
 cd src/Tallyard.Api
 dotnet run -- seed                            # migrate + demo data (2 tenants)
+dotnet user-secrets set Ai:GroqApiKey <key>   # optional: AI features (free key at console.groq.com)
 dotnet run                                    # API on http://localhost:5080
 
 cd ../../web
@@ -109,6 +160,11 @@ connects as a role that is not the table owner):
   can't exceed what is owed; invoices more than 30 days overdue hold new orders.
 - **Reservations match orders:** every balance's reserved quantity equals the reserved quantity
   of the open order lines.
+- **AI without the AI:** a scripted model replaces Groq to test what the app does with model
+  output: a case barcode matches the product and sets the unit; an unknown line is flagged
+  `no_match` and a line whose amount doesn't add up `math`; a reviewed document becomes one draft
+  order (twice is refused); warehouse staff asking the chat about receivables get "your role
+  can't see this" and stock only for their warehouse.
 - **No cross-tenant references:** no balance, movement, order line or rule points at another
   tenant's product, warehouse or supplier.
 - **RLS coverage:** a test fails if any table with a `tenant_id` column lacks row-level security.

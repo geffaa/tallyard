@@ -844,6 +844,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChatInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatAnswer"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -2514,6 +2553,175 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DocumentListItem"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        file: components["schemas"]["IFormFile"];
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/documents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DocumentDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/documents/{id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/documents/{id}/purchase-order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ConvertInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2620,6 +2828,14 @@ export interface components {
             /** Format: double */
             onHand: number;
         };
+        Candidate: {
+            /** Format: uuid */
+            productId: string;
+            sku: string;
+            name: string;
+            /** Format: double */
+            score: number;
+        };
         CategoryDto: {
             /** Format: uuid */
             id: string;
@@ -2628,11 +2844,42 @@ export interface components {
         CategoryInput: {
             name: string;
         };
+        ChatAnswer: {
+            answer: string;
+            tables: components["schemas"]["DataTable"][];
+            tools: components["schemas"]["ToolUse"][];
+            /** Format: int32 */
+            tokens: number;
+        };
+        ChatInput: {
+            messages: components["schemas"]["ChatTurn"][];
+        };
+        ChatTurn: {
+            role: string;
+            content: string;
+        };
         CommentInput: {
             comment: null | string;
         };
         ConfirmInput: {
             allowBackorder: boolean;
+        };
+        ConvertInput: {
+            /** Format: uuid */
+            supplierId: string;
+            /** Format: uuid */
+            warehouseId: string;
+            note: null | string;
+            lines: components["schemas"]["ConvertLine"][];
+        };
+        ConvertLine: {
+            /** Format: uuid */
+            productId: string;
+            /** Format: double */
+            quantity: number;
+            unit: string;
+            /** Format: double */
+            unitPrice: number;
         };
         CreditDto: {
             /** Format: double */
@@ -2648,6 +2895,84 @@ export interface components {
             /** Format: int32 */
             overdueInvoices: number;
         };
+        DataTable: {
+            title: string;
+            columns: string[];
+            rows: unknown[][];
+        };
+        DocumentDto: {
+            /** Format: uuid */
+            id: string;
+            fileName: string;
+            contentType: string;
+            status: string;
+            errorCode: null | string;
+            errorMessage: null | string;
+            reader: null | string;
+            result: null | components["schemas"]["DocumentResult"];
+            /** Format: int32 */
+            tokens: number;
+            /** Format: int32 */
+            durationMs: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            purchaseOrderId: null | string;
+            purchaseOrder: null | string;
+        };
+        DocumentListItem: {
+            /** Format: uuid */
+            id: string;
+            fileName: string;
+            status: string;
+            supplier: null | string;
+            documentNumber: null | string;
+            /** Format: int32 */
+            lines: number;
+            /** Format: int32 */
+            flagged: number;
+            /** Format: date-time */
+            createdAt: string;
+            purchaseOrder: null | string;
+            /** Format: uuid */
+            purchaseOrderId: null | string;
+        };
+        DocumentResult: {
+            extracted: components["schemas"]["ExtractedDoc"];
+            supplier: null | components["schemas"]["SupplierGuess"];
+            lines: components["schemas"]["ReviewLine"][];
+            warnings: string[];
+            text: string;
+        };
+        ExtractedDoc: {
+            supplierName: null | string;
+            documentNumber: null | string;
+            documentDate: null | string;
+            currency: null | string;
+            /** Format: double */
+            subtotal: null | number;
+            /** Format: double */
+            charges: null | number;
+            /** Format: double */
+            tax: null | number;
+            /** Format: double */
+            total: null | number;
+            lines: components["schemas"]["ExtractedLine"][];
+        };
+        ExtractedLine: {
+            description: string;
+            normalizedDescription: null | string;
+            supplierCode: null | string;
+            /** Format: double */
+            quantity: number;
+            unit: null | string;
+            /** Format: double */
+            unitPrice: number;
+            /** Format: double */
+            lineTotal: null | number;
+        };
+        /** Format: binary */
+        IFormFile: string;
         InvoiceDto: {
             /** Format: uuid */
             id: string;
@@ -3212,6 +3537,25 @@ export interface components {
             /** Format: double */
             unitPrice: null | number;
         };
+        ReviewLine: {
+            /** Format: int32 */
+            index: number;
+            source: components["schemas"]["ExtractedLine"];
+            /** Format: uuid */
+            productId: null | string;
+            sku: null | string;
+            name: null | string;
+            match: string;
+            /** Format: double */
+            score: number;
+            candidates: components["schemas"]["Candidate"][];
+            unit: string;
+            /** Format: double */
+            quantity: number;
+            /** Format: double */
+            unitPrice: number;
+            flags: string[];
+        };
         ShipInput: {
             lines: components["schemas"]["ShipLineInput"][];
             carrier: null | string;
@@ -3404,12 +3748,23 @@ export interface components {
             /** Format: double */
             avgCost: null | number;
         };
+        SupplierGuess: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: double */
+            score: number;
+        };
         TenantInfo: {
             /** Format: uuid */
             id: string;
             slug: string;
             name: string;
             currency: string;
+        };
+        ToolUse: {
+            name: string;
+            arguments: string;
         };
         TransferDto: {
             /** Format: uuid */

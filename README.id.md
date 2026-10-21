@@ -7,7 +7,7 @@ order-to-cash, dengan lapisan AI yang mengubah dokumen supplier menjadi draft pe
 bukan ERP penuh (tanpa buku besar, HR, atau payroll); fokus mendalam di tiga alur yang paling
 sering membuat distributor rugi. Rencana lengkap: [BREAKDOWN.md](BREAKDOWN.md).
 
-**Status:** milestone 1–4 dari 6 selesai.
+**Status:** milestone 1–5 dari 6 selesai.
 - **Fondasi:** tenant terisolasi dengan row-level security Postgres, peran dan akses per gudang,
   audit log append-only, data master (produk dengan kemasan dan barcode, gudang, supplier,
   pelanggan).
@@ -23,8 +23,36 @@ sering membuat distributor rugi. Rencana lengkap: [BREAKDOWN.md](BREAKDOWN.md).
   invoice lewat jatuh tempo lebih dari 30 hari), pengiriman dari stok yang direservasi dengan
   daftar picking FEFO dan surat jalan, satu invoice per pengiriman, pembayaran yang dialokasikan
   ke invoice tertua, dan laporan umur piutang. Data demo berisi riwayat empat bulan.
+- **AI (Groq, free tier):** invoice dan penawaran supplier (PDF atau foto) dibaca menjadi draft
+  purchase order di layar review berdampingan dengan dokumen aslinya; dan chat yang menjawab
+  pertanyaan tentang stok, pembelian, dan penjualan dari query tetap yang mengikuti hak akses,
+  menampilkan tabel di balik setiap jawaban.
 
-Berikutnya: lapisan AI (M5): dokumen supplier menjadi draft order, dan tanya jawab tentang data.
+Berikutnya: polish (M6): import Excel, dashboard, stock opname, video demo.
+
+## AI: diukur, bukan diasumsikan
+
+Pembacaan dokumen supplier diukur pada 30 invoice fiktif (20 PDF, 10 PNG, 145 baris produk)
+dalam empat gaya: rapi, disingkat (`SLVRBRK WHL MLK 1L`, `CS`, kode item supplier), dengan
+barcode kita, dan format angka Eropa ([hasil lengkap](eval/supplier-docs/results.md)).
+
+| Ukuran | Putaran pertama | Dengan daftar merek katalog di prompt |
+|---|---|---|
+| Supplier, nomor dokumen, tanggal, total terbaca benar | 100% | 100% |
+| Baris dicocokkan ke produk yang benar | 92% | **99%** |
+| … gaya singkatan saja | 63% | **97%** |
+| Baris diterima tanpa tanda | 80% | 92% |
+| **Produk salah tanpa tanda** | **0 dari 116** | **0 dari 134** |
+| Rata-rata waktu per dokumen | 13,8 dtk | 12,4 dtk |
+
+Angka terpenting adalah "produk salah tanpa tanda": kecocokan salah yang tidak diminta untuk dicek
+akan menjadi order yang salah. Setiap baris yang tidak pasti selalu ditandai. Kesalahan putaran
+pertama semuanya merek yang disingkat (`BLCRST`) yang tidak bisa ditebak model; memberi daftar
+merek yang kita jual memperbaiki hampir semuanya.
+
+Chat tidak pernah menulis SQL: hanya memanggil delapan tool tetap yang berjalan sebagai penanya
+(tenant-nya lewat RLS, gudangnya, dan tanpa kolom harga untuk peran yang tidak boleh melihat).
+Jawaban hanya boleh memakai angka dari hasil tool; tabelnya ditampilkan di bawah jawaban.
 
 ## Stack
 
@@ -47,6 +75,7 @@ Butuh Docker, .NET 10 SDK, dan Node 20+.
 docker compose up -d                          # Postgres di :5442
 cd src/Tallyard.Api
 dotnet run -- seed                            # migrasi + data demo (2 tenant)
+dotnet user-secrets set Ai:GroqApiKey <key>   # opsional: fitur AI (key gratis di console.groq.com)
 dotnet run                                    # API di http://localhost:5080
 
 cd ../../web

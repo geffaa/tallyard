@@ -37,6 +37,9 @@ export const routes: Routes = [
         canActivate: [requires('ViewPurchasing')],
         loadComponent: () => import('./pages/purchasing/reorder').then((m) => m.ReorderPage),
       },
+      { path: 'purchasing/documents', canActivate: [requires('EditPurchaseOrders')], loadComponent: () => import('./pages/purchasing/documents').then((m) => m.DocumentsPage) },
+      { path: 'purchasing/documents/:id', canActivate: [requires('EditPurchaseOrders')], loadComponent: () => import('./pages/purchasing/documents').then((m) => m.DocumentReviewPage) },
+      { path: 'assistant', loadComponent: () => import('./pages/assistant').then((m) => m.AssistantPage) },
       {
         path: 'purchasing/new',
         canActivate: [requires('EditPurchaseOrders')],

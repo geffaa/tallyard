@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Tallyard.Api.Common;
 using Tallyard.Api.Infrastructure;
+using Tallyard.Api.Modules.Assistant;
 using Tallyard.Api.Modules.Audit;
 using Tallyard.Api.Modules.Catalog;
 using Tallyard.Api.Modules.Identity;
@@ -29,6 +30,11 @@ builder.Services.AddScoped<Quantities>();
 builder.Services.AddScoped<PurchasingService>();
 builder.Services.AddScoped<Reorder>();
 builder.Services.AddScoped<SalesService>();
+var ai = config.GetSection("Ai").Get<AiOptions>() ?? new AiOptions();
+builder.Services.AddSingleton(ai);
+builder.Services.AddHttpClient<ILlm, GroqLlm>(h => h.Timeout = TimeSpan.FromSeconds(120));
+builder.Services.AddScoped<Extraction>();
+builder.Services.AddScoped<DataTools>();
 builder.Services.AddSingleton<IStockNotifier, SignalRStockNotifier>();
 builder.Services.AddSignalR();
 builder.Services.AddDbContext<AppDbContext>((sp, o) => Db.Configure(o, config.GetConnectionString("App")!)
@@ -88,6 +94,15 @@ QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 var app = builder.Build();
 
 // `dotnet run -- migrate` / `dotnet run -- seed`: run as the owner role, then exit.
+// `dotnet run -- eval-docs generate|run`: the supplier-document evaluation (see DocumentEval).
+if (args.FirstOrDefault() == "eval-docs")
+{
+    var dir = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "../../eval/supplier-docs"));
+    if (args.ElementAtOrDefault(1) == "generate") await DocumentEval.GenerateAsync(config, dir);
+    else await DocumentEval.RunAsync(config, app.Services, dir);
+    return;
+}
+
 if (args.FirstOrDefault() is "migrate" or "seed")
 {
     await using (var owner = Db.Owner(config)) await owner.Database.MigrateAsync();
@@ -128,6 +143,8 @@ StockEndpoints.Map(api);
 TransferEndpoints.Map(api);
 PurchasingEndpoints.Map(api);
 SalesEndpoints.Map(api);
+DocumentEndpoints.Map(api);
+ChatEndpoints.Map(api);
 app.MapHub<StockHub>("/hubs/stock");
 api.MapGet("/health", () => Results.Ok(new { ok = true })).AllowAnonymous();
 

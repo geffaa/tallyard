@@ -15,6 +15,8 @@ import {
   ClipboardList,
   RefreshCcw,
   ShieldCheck,
+  ScanText,
+  Sparkles,
   ReceiptText,
   Wallet,
   ChartColumn,
@@ -145,6 +147,7 @@ export class Shell {
   ];
 
   private all: { title: MessageKey; items: NavItem[] }[] = [
+    { title: 'nav.ai', items: [{ path: '/assistant', label: 'nav.assistant', icon: Sparkles }] },
     {
       title: 'nav.inventory',
       items: [
@@ -158,6 +161,7 @@ export class Shell {
       items: [
         { path: '/purchasing', label: 'nav.orders', icon: ClipboardList, perm: 'ViewPurchasing', exact: true },
         { path: '/purchasing/reorder', label: 'nav.reorder', icon: RefreshCcw, perm: 'ViewPurchasing' },
+        { path: '/purchasing/documents', label: 'nav.documents', icon: ScanText, perm: 'EditPurchaseOrders' },
       ],
     },
     {

@@ -48,6 +48,87 @@ namespace Tallyard.Api.Infrastructure.Migrations
                     b.ToTable("document_sequences", (string)null);
                 });
 
+            modelBuilder.Entity("Tallyard.Api.Modules.Assistant.SupplierDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("content");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("DurationMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<string>("ErrorCode")
+                        .HasColumnType("text")
+                        .HasColumnName("error_code");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<Guid?>("PurchaseOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("purchase_order_id");
+
+                    b.Property<string>("Reader")
+                        .HasColumnType("text")
+                        .HasColumnName("reader");
+
+                    b.Property<string>("Result")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("result");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<int>("Tokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("tokens");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UploadedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uploaded_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_supplier_documents");
+
+                    b.HasIndex("PurchaseOrderId")
+                        .HasDatabaseName("ix_supplier_documents_purchase_order_id");
+
+                    b.HasIndex("TenantId", "CreatedAt")
+                        .HasDatabaseName("ix_supplier_documents_tenant_id_created_at");
+
+                    b.ToTable("supplier_documents", (string)null);
+                });
+
             modelBuilder.Entity("Tallyard.Api.Modules.Audit.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2020,6 +2101,15 @@ namespace Tallyard.Api.Infrastructure.Migrations
                         .HasDatabaseName("ix_warehouses_tenant_id_code");
 
                     b.ToTable("warehouses", (string)null);
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Assistant.SupplierDocument", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Purchasing.PurchaseOrder", null)
+                        .WithMany()
+                        .HasForeignKey("PurchaseOrderId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_supplier_documents_purchase_orders_purchase_order_id");
                 });
 
             modelBuilder.Entity("Tallyard.Api.Modules.Catalog.Product", b =>

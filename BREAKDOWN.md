@@ -217,7 +217,7 @@ Prinsip:
 **M4 — Order-to-cash (±3 hari)** ✅ selesai
 - SO + reservasi + limit kredit, picking/pengiriman, surat jalan, invoice, pembayaran, umur piutang
 
-**M5 — AI (±3 hari)**
+**M5 — AI (±3 hari)** ✅ selesai
 - Ekstraksi dokumen supplier + layar review + SKU matching
 - Chat data dengan tools
 - Set uji dan hasil evaluasi di README
