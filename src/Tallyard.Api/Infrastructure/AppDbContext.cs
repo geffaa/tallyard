@@ -49,6 +49,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<PaymentAllocation> PaymentAllocations => Set<PaymentAllocation>();
     public DbSet<SupplierDocument> SupplierDocuments => Set<SupplierDocument>();
+    public DbSet<StockCount> StockCounts => Set<StockCount>();
+    public DbSet<StockCountLine> StockCountLines => Set<StockCountLine>();
 
     public override Task<int> SaveChangesAsync(bool acceptAll, CancellationToken ct = default)
     {
@@ -391,6 +393,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, CurrentUser us
             e.HasOne<Invoice>().WithMany().HasForeignKey(x => x.InvoiceId).OnDelete(DeleteBehavior.Restrict);
             e.Property(x => x.Amount).HasPrecision(18, 2);
             e.ToTable(t => t.HasCheckConstraint("ck_payment_allocations_amount", "amount > 0"));
+        });
+
+        b.Entity<StockCount>(e =>
+        {
+            e.HasIndex(x => new { x.TenantId, x.Number }).IsUnique();
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.HasOne<Warehouse>().WithMany().HasForeignKey(x => x.WarehouseId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.StockCountId).OnDelete(DeleteBehavior.Cascade);
+            e.Property(x => x.Version).IsRowVersion();
+        });
+        b.Entity<StockCountLine>(e =>
+        {
+            e.HasIndex(x => new { x.StockCountId, x.ProductId });
+            e.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
+            e.Property(x => x.Expected).HasPrecision(18, 4);
+            e.Property(x => x.Counted).HasPrecision(18, 4);
+            e.ToTable(t => t.HasCheckConstraint("ck_stock_count_lines_counted", "counted IS NULL OR counted >= 0"));
         });
 
         b.Entity<SupplierDocument>(e =>

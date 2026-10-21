@@ -49,7 +49,7 @@ interface Turn {
               <div class="self-end max-w-[80%] rounded-2xl rounded-br-md bg-rail px-4 py-2.5 text-[14px] text-white">{{ t.content }}</div>
             } @else {
               <div class="flex flex-col gap-3 min-w-0">
-                <div class="max-w-[90%] text-[14.5px] leading-relaxed whitespace-pre-line" [class.text-danger]="t.error">{{ t.content }}</div>
+                <div class="max-w-[90%] text-[14.5px] leading-relaxed whitespace-pre-line" [class.text-danger]="t.error" [innerHTML]="rich(t.content)"></div>
                 @if (t.tools?.length) {
                   <div class="flex flex-wrap items-center gap-1.5 text-[12px] text-muted">
                     <lucide-icon [img]="DbIcon" [size]="13" />{{ i18n.t('chat.used') }}:
@@ -145,6 +145,12 @@ export class AssistantPage {
     if ((e as KeyboardEvent).shiftKey) return;
     e.preventDefault();
     this.ask(this.draft);
+  }
+
+  /** Escapes the answer, then shows **bold** as bold (the model sometimes uses it despite the prompt). */
+  rich(text: string) {
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   }
 
   isNumber(v: unknown) {

@@ -70,7 +70,12 @@ public sealed class DataTools(AppDbContext db, CurrentUser me, WarehouseAccess a
         // The model gets the first rows only, columns named once: the free tier allows 8,000 tokens
         // a minute, and the person sees the full table anyway. totalRows tells the model what it isn't seeing.
         const int ForModel = 15;
-        return (JsonSerializer.Serialize(new { table.Title, table.Columns, rows = table.Rows.Take(ForModel), totalRows = table.Rows.Length }), table);
+        // The count goes first and in words: given only "totalRows", the model still sometimes
+        // counted the visible rows instead (said 13 when there were 51).
+        var count = table.Rows.Length > ForModel
+            ? $"{table.Rows.Length} rows in total; only the first {ForModel} are listed below. The answer must say {table.Rows.Length}."
+            : $"{table.Rows.Length} rows in total, all listed below.";
+        return (JsonSerializer.Serialize(new { count, table.Title, table.Columns, rows = table.Rows.Take(ForModel) }), table);
     }
 
     bool Can(string perm) => Perm.Has(me.Role!.Value, perm);

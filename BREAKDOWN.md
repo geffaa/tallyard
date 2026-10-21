@@ -222,7 +222,7 @@ Prinsip:
 - Chat data dengan tools
 - Set uji dan hasil evaluasi di README
 
-**M6 — Polish & portfolio (±2 hari)**
+**M6 — Polish & portfolio (±2 hari)** ✅ selesai
 - Import Excel, dashboard, laporan, opname dengan scan HP
 - i18n, redesign "anti slop", README + studi kasus, rekaman demo Puppeteer, push ke GitHub
 

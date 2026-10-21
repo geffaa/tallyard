@@ -17,6 +17,9 @@ import {
   ShieldCheck,
   ScanText,
   Sparkles,
+  LayoutDashboard,
+  ClipboardCheck,
+  FileSpreadsheet,
   ReceiptText,
   Wallet,
   ChartColumn,
@@ -147,12 +150,19 @@ export class Shell {
   ];
 
   private all: { title: MessageKey; items: NavItem[] }[] = [
-    { title: 'nav.ai', items: [{ path: '/assistant', label: 'nav.assistant', icon: Sparkles }] },
+    {
+      title: 'nav.workspace',
+      items: [
+        { path: '/', label: 'nav.home', icon: LayoutDashboard, exact: true },
+        { path: '/assistant', label: 'nav.assistant', icon: Sparkles },
+      ],
+    },
     {
       title: 'nav.inventory',
       items: [
         { path: '/stock', label: 'nav.inventory', icon: Boxes, exact: true },
         { path: '/stock/adjustments', label: 'nav.adjustments', icon: SlidersHorizontal },
+        { path: '/stock/counts', label: 'nav.counts', icon: ClipboardCheck, perm: 'AdjustStock' },
         { path: '/transfers', label: 'nav.transfers', icon: ArrowLeftRight },
       ],
     },
@@ -171,6 +181,7 @@ export class Shell {
         { path: '/warehouses', label: 'nav.warehouses', icon: Warehouse },
         { path: '/suppliers', label: 'nav.suppliers', icon: Truck },
         { path: '/customers', label: 'nav.customers', icon: Building2 },
+        { path: '/import', label: 'nav.import', icon: FileSpreadsheet },
       ],
     },
     {

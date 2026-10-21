@@ -27,7 +27,9 @@ public record PostRequest(
     string? SourceType = null,
     Guid? SourceId = null,
     /// <summary>Use this document number instead of taking a new one (a transfer's movements carry the transfer's number).</summary>
-    string? Number = null);
+    string? Number = null,
+    /// <summary>When it happened, if not now. Only the demo seeder back-dates history.</summary>
+    DateTimeOffset? At = null);
 
 /// <summary>Sent to the browsers of the tenant after a posting commits.</summary>
 public record BalanceChanged(Guid ProductId, Guid WarehouseId, decimal OnHand, decimal Reserved);
@@ -46,6 +48,10 @@ public record BalanceChanged(Guid ProductId, Guid WarehouseId, decimal OnHand, d
 public sealed class StockLedger(AppDbContext db, CurrentUser user, DocumentNumbers numbers, IStockNotifier notifier)
 {
     readonly List<BalanceChanged> pending = [];
+    DateTimeOffset at = DateTimeOffset.UtcNow;
+    // Movements of one posting share a moment; a microsecond apart each keeps them in posting order
+    // when sorted by time (UUIDv7 ids are not ordered within the same millisecond).
+    int sequence;
 
     public async Task<StockOperation> PostAsync(PostRequest req, CancellationToken ct)
     {
@@ -53,6 +59,8 @@ public sealed class StockLedger(AppDbContext db, CurrentUser user, DocumentNumbe
         if (req.Changes.Any(c => c.Quantity == 0)) throw new ArgumentException("Zero quantity", nameof(req));
 
         if (req.IdempotencyKey is { } key && await Existing(key, ct) is { } done) return done;
+        at = req.At ?? DateTimeOffset.UtcNow;
+        sequence = 0;
 
         var owns = db.Database.CurrentTransaction is null;
         await using var tx = owns ? await db.Database.BeginTransactionAsync(ct) : null;
@@ -160,6 +168,7 @@ public sealed class StockLedger(AppDbContext db, CurrentUser user, DocumentNumbe
             SourceType = req.SourceType,
             SourceId = req.SourceId,
             CreatedBy = user.UserId,
+            CreatedAt = req.At ?? DateTimeOffset.UtcNow,
         };
         db.StockOperations.Add(op);
 
@@ -265,6 +274,7 @@ public sealed class StockLedger(AppDbContext db, CurrentUser user, DocumentNumbe
         Quantity = qty,
         UnitCost = cost,
         BalanceAfter = after,
+        CreatedAt = at.AddTicks(10 * sequence++), // 1 µs: Postgres keeps microseconds, not ticks
     };
 
     async Task<StockBalance> LockBalance(Guid productId, Guid warehouseId, CancellationToken ct)

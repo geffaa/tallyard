@@ -114,3 +114,39 @@ public class TransferLine : Entity, ITenantOwned
     /// <summary>The cost it left the source at; the destination receives it at this cost.</summary>
     public decimal UnitCost { get; set; }
 }
+
+public enum CountStatus { Counting, Posted, Cancelled }
+
+/// <summary>
+/// A stock count (stock opname). Starting it records what the system expects per product (and
+/// batch); people then count what is on the shelf. Posting adjusts by counted − expected, so
+/// sales and receipts that happen while counting are not undone by the count.
+/// </summary>
+public class StockCount : TenantEntity, IAudited
+{
+    public required string Number { get; set; }
+    public Guid WarehouseId { get; set; }
+    public Guid? CategoryId { get; set; }
+    public CountStatus Status { get; set; } = CountStatus.Counting;
+    public string? Note { get; set; }
+    public Guid? StartedBy { get; set; }
+    public Guid? PostedBy { get; set; }
+    public DateTimeOffset? PostedAt { get; set; }
+    public Guid? AdjustmentId { get; set; }
+    public List<StockCountLine> Lines { get; set; } = [];
+    public uint Version { get; set; }
+}
+
+public class StockCountLine : Entity, ITenantOwned
+{
+    public Guid TenantId { get; set; }
+    public Guid StockCountId { get; set; }
+    public Guid ProductId { get; set; }
+    public Guid? BatchId { get; set; }
+    /// <summary>On hand when the count started (base units).</summary>
+    public decimal Expected { get; set; }
+    /// <summary>Null until someone counts it.</summary>
+    public decimal? Counted { get; set; }
+    public Guid? CountedBy { get; set; }
+    public DateTimeOffset? CountedAt { get; set; }
+}

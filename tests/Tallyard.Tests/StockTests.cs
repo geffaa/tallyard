@@ -85,6 +85,14 @@ public class StockTests(ApiFixture api)
             WHERE bb.on_hand <> (SELECT coalesce(sum(quantity), 0) FROM stock_movements m
                                  WHERE m.batch_id = bb.batch_id AND m.warehouse_id = bb.warehouse_id)
             """,
+            // The stock card reads by date: each running balance follows from the one before it.
+            """
+            SELECT count(*) FROM (
+                SELECT balance_after, quantity,
+                       lag(balance_after) OVER (PARTITION BY product_id, warehouse_id ORDER BY created_at, id) AS prev
+                FROM stock_movements) m
+            WHERE prev IS NOT NULL AND balance_after <> prev + quantity
+            """,
             """
             SELECT count(*) FROM stock_balances b JOIN products p ON p.id = b.product_id
             WHERE p.track_batches AND b.on_hand <> (SELECT coalesce(sum(on_hand), 0) FROM batch_balances bb

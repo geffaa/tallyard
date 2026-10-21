@@ -621,6 +621,137 @@ namespace Tallyard.Api.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockCount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AdjustmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("adjustment_id");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<DateTimeOffset?>("PostedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("posted_at");
+
+                    b.Property<Guid?>("PostedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("posted_by");
+
+                    b.Property<Guid?>("StartedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("started_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("warehouse_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_stock_counts");
+
+                    b.HasIndex("WarehouseId")
+                        .HasDatabaseName("ix_stock_counts_warehouse_id");
+
+                    b.HasIndex("TenantId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_stock_counts_tenant_id_number");
+
+                    b.ToTable("stock_counts", (string)null);
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockCountLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BatchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("batch_id");
+
+                    b.Property<decimal?>("Counted")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("counted");
+
+                    b.Property<DateTimeOffset?>("CountedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("counted_at");
+
+                    b.Property<Guid?>("CountedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("counted_by");
+
+                    b.Property<decimal>("Expected")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasColumnName("expected");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<Guid>("StockCountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("stock_count_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_stock_count_lines");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_stock_count_lines_product_id");
+
+                    b.HasIndex("StockCountId", "ProductId")
+                        .HasDatabaseName("ix_stock_count_lines_stock_count_id_product_id");
+
+                    b.ToTable("stock_count_lines", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_stock_count_lines_counted", "counted IS NULL OR counted >= 0");
+                        });
+                });
+
             modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockMovement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2204,6 +2335,33 @@ namespace Tallyard.Api.Infrastructure.Migrations
                         .HasConstraintName("fk_stock_balances_warehouses_warehouse_id");
                 });
 
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockCount", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_counts_warehouses_warehouse_id");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockCountLine", b =>
+                {
+                    b.HasOne("Tallyard.Api.Modules.Catalog.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_count_lines_products_product_id");
+
+                    b.HasOne("Tallyard.Api.Modules.Inventory.StockCount", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("StockCountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_count_lines_stock_counts_stock_count_id");
+                });
+
             modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockMovement", b =>
                 {
                     b.HasOne("Tallyard.Api.Modules.Inventory.Batch", null)
@@ -2466,6 +2624,11 @@ namespace Tallyard.Api.Infrastructure.Migrations
             modelBuilder.Entity("Tallyard.Api.Modules.Identity.User", b =>
                 {
                     b.Navigation("Warehouses");
+                });
+
+            modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockCount", b =>
+                {
+                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("Tallyard.Api.Modules.Inventory.StockOperation", b =>

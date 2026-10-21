@@ -185,7 +185,7 @@ public sealed class SalesService(
     /// Ships reserved stock. Only what is reserved for a line can ship (so a shipment never takes
     /// stock promised to someone else); batches are picked earliest-expiry first by the ledger.
     /// </summary>
-    public async Task<Shipment> ShipAsync(Guid id, ShipInput input, CancellationToken ct)
+    public async Task<Shipment> ShipAsync(Guid id, ShipInput input, CancellationToken ct, DateTimeOffset? at = null)
     {
         if (input.IdempotencyKey is { } key &&
             await db.StockOperations.AsNoTracking().FirstOrDefaultAsync(o => o.IdempotencyKey == key, ct) is { SourceId: { } done })
@@ -200,6 +200,7 @@ public sealed class SalesService(
         {
             Number = await numbers.NextAsync("DO", ct), SalesOrderId = so.Id, CustomerId = so.CustomerId, WarehouseId = so.WarehouseId,
             ShippedBy = me.UserId, Carrier = Blank(input.Carrier), TrackingNumber = Blank(input.TrackingNumber),
+            ShippedAt = at ?? DateTimeOffset.UtcNow,
         };
         var picks = new List<(SalesOrderLine Line, decimal Base)>();
         foreach (var l in input.Lines.Where(l => l.Quantity > 0))
@@ -219,7 +220,7 @@ public sealed class SalesService(
         // One change per order line, so the resulting movements map back to their lines in order.
         var changes = picks.Select(p => new StockChange(p.Line.ProductId, so.WarehouseId, -p.Base, FromReserved: true)).ToList();
         var op = await ledger.PostAsync(new PostRequest(OperationKind.Shipment, "DO", changes, input.IdempotencyKey,
-            SourceType: nameof(Shipment), SourceId: shipment.Id, Number: shipment.Number), ct);
+            SourceType: nameof(Shipment), SourceId: shipment.Id, Number: shipment.Number, At: at), ct);
 
         var movements = new Queue<StockMovement>(op.Movements);
         foreach (var (line, baseQty) in picks)

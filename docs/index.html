@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tallyard · case study</title>
+  <meta name="description" content="Operations software for wholesale distributors: multi-warehouse stock, purchasing and order-to-cash, with AI that reads supplier invoices. ASP.NET Core, Angular, Postgres.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e5e5e'/%3E%3Cpath d='M9 11h14M16 11v12' stroke='%23f2a541' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f5f3ee; --surface: #fff; --line: #e3dfd5; --ink: #18222c; --ink2: #3a4652; --muted: #6b7480;
+      --brand: #0e5e5e; --brand-soft: #e3efed; --signal: #f2a541; --signal-ink: #8a5208; --rail: #142028;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--paper); color: var(--ink); }
+    body { margin: 0; font: 16px/1.6 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: var(--brand); }
+    code { font-family: 'IBM Plex Mono', monospace; font-size: .88em; background: #ece9e1; padding: 1px 5px; border-radius: 4px; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    header.hero { background: var(--rail); color: #fff; padding: 56px 0 64px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 18px; }
+    .hero h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.05; letter-spacing: -.02em; margin: 36px 0 18px; max-width: 18ch; }
+    .hero p { font-size: 19px; color: #b9c5cd; max-width: 60ch; margin: 0; }
+    .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 15px; }
+    .btn.primary { background: var(--signal); color: var(--rail); }
+    .btn.ghost { border: 1.5px solid #3a4b57; color: #fff; }
+    .video { margin-top: -36px; }
+    video, .shot img { width: 100%; display: block; border-radius: 14px; border: 1px solid var(--line); background: #fff; box-shadow: 0 20px 50px rgba(20, 32, 40, .14); }
+    section { padding: 56px 0 8px; }
+    .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    h2 { font-size: clamp(26px, 3.6vw, 34px); line-height: 1.15; letter-spacing: -.015em; margin: 8px 0 14px; }
+    h3 { font-size: 18px; margin: 0 0 6px; }
+    .lede { font-size: 18px; color: var(--ink2); max-width: 66ch; }
+    .grid2 { display: grid; gap: 28px; grid-template-columns: 1fr; align-items: center; margin-top: 26px; }
+    @media (min-width: 860px) { .grid2 { grid-template-columns: 5fr 7fr; } .grid2.flip { grid-template-columns: 7fr 5fr; } .grid2.flip > :first-child { order: 2; } }
+    .text p { color: var(--ink2); margin: 0 0 12px; }
+    ul.ticks { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+    ul.ticks li { padding-left: 26px; position: relative; color: var(--ink2); }
+    ul.ticks li::before { content: ''; position: absolute; left: 2px; top: 9px; width: 12px; height: 7px; border-left: 2.5px solid var(--brand); border-bottom: 2.5px solid var(--brand); transform: rotate(-45deg); }
+    .cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 22px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+    .card .num { font-size: 38px; font-weight: 700; letter-spacing: -.02em; color: var(--brand); line-height: 1.05; }
+    .card .lab { font-size: 14px; color: var(--muted); margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; font-size: 15px; margin-top: 18px; }
+    th, td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+    th { background: #f0ede6; font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:last-child td { border-bottom: 0; }
+    tr.best td { background: var(--brand-soft); font-weight: 600; }
+    .phone { max-width: 300px; margin: 0 auto; }
+    .stack { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .stack span { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 14px; }
+    footer { padding: 56px 0 64px; color: var(--muted); font-size: 14px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="brand">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0e5e5e"/><path d="M9 11h14M16 11v12" stroke="#f2a541" stroke-width="3.2" stroke-linecap="round"/><path d="M9 23h4M19 23h4" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".7"/></svg>
+        Tallyard
+      </div>
+      <h1>Every unit, every warehouse, accounted for.</h1>
+      <p>Operations software for wholesale distributors moving off spreadsheets: stock across warehouses, purchasing with approvals, and order-to-cash, with AI that reads supplier invoices into draft orders. Built to show how this kind of system stays correct when many people use it at once.</p>
+      <div class="links">
+        <a class="btn primary" href="https://github.com/geffaa/tallyard">Source on GitHub</a>
+        <a class="btn ghost" href="#proof">What the tests prove</a>
+        <a class="btn ghost" href="#ai">AI results</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap video">
+    <video src="tallyard-demo.mp4" poster="poster.jpg" controls preload="metadata" playsinline></video>
+  </div>
+
+  <main class="wrap">
+    <section>
+      <div class="eyebrow">The problem</div>
+      <h2>Spreadsheets can’t tell you what you can sell.</h2>
+      <p class="lede">A distributor with a few warehouses and a few hundred products keeps stock in Excel, takes orders on WhatsApp and retypes supplier invoices. Nobody knows what is on hand, promised or on the way; stockouts surface when a customer complains. Full ERPs are expensive and slow to implement. Tallyard goes deep on the three flows where distributors lose money instead of shallow across everything.</p>
+    </section>
+
+    <section>
+      <div class="grid2">
+        <div class="text">
+          <div class="eyebrow">Overview</div>
+          <h2>What needs attention, by role</h2>
+          <p>Each tile links to the screen where it’s handled. Money is left out for roles that can’t see it: warehouse staff see units, never costs.</p>
+        </div>
+        <div class="shot"><img src="img/60-home.png" alt="Overview with tiles for reorders, expiring batches, approvals and receivables, and a 30-day sales chart" loading="lazy"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid2 flip">
+        <div class="text">
+          <div class="eyebrow">Stock</div>
+          <h2>One ledger, under row locks</h2>
+          <p>Every change to stock is an append-only movement posted by one service, <code>StockLedger</code>, which locks the balance rows it touches in a fixed order, checks free stock, and updates balances in the same transaction.</p>
+          <ul class="ticks">
+            <li>On hand, reserved and available per warehouse, updating live over SignalR</li>
+            <li>Batches with expiry, picked earliest-expiry-first</li>
+            <li>Moving average cost; transfers with a real “in transit” state</li>
+            <li>A stock card with the running balance, in date order</li>
+          </ul>
+        </div>
+        <div class="shot"><img src="img/21-stock-live.png" alt="Stock matrix with a cell highlighted after a live update" loading="lazy"></div>
+      </div>
+    </section>
+
+    <section id="ai">
+      <div class="grid2">
+        <div class="text">
+          <div class="eyebrow">AI · supplier documents</div>
+          <h2>A photo of an invoice becomes a draft order</h2>
+          <p>Text comes from the PDF, or from a vision model for photos. <code>gpt-oss-120b</code> fills a strict JSON schema; lines are matched by our barcode, then name similarity, then the model choosing among the closest products. Deterministic checks (quantity × price, totals, units) flag what a person must look at.</p>
+          <p>Nothing is ordered until someone creates the draft and it is approved.</p>
+        </div>
+        <div class="shot"><img src="img/51-doc-review.png" alt="Review screen: the invoice image beside matched lines, one flagged for checking" loading="lazy"></div>
+      </div>
+      <div class="scroll">
+        <table>
+          <tr><th>30 fictional invoices · 145 lines</th><th>First run</th><th>With our brand list in the prompt</th></tr>
+          <tr><td>Supplier, number, date, total read correctly</td><td class="n">100%</td><td class="n">100%</td></tr>
+          <tr><td>Lines matched to the right product</td><td class="n">92%</td><td class="n">99%</td></tr>
+          <tr><td>… abbreviated names only (“SLVRBRK WHL MLK 1L”)</td><td class="n">63%</td><td class="n">97%</td></tr>
+          <tr class="best"><td>Wrong product with no flag</td><td class="n">0 of 116</td><td class="n">0 of 134</td></tr>
+        </table>
+      </div>
+      <p class="lede" style="margin-top:14px">The row that matters is the last: a confident wrong match would become a wrong order. The misses all showed up as “pick the product”.</p>
+    </section>
+
+    <section>
+      <div class="grid2 flip">
+        <div class="text">
+          <div class="eyebrow">AI · ask your data</div>
+          <h2>Answers with the tables behind them</h2>
+          <p>The chat never writes SQL. It can call eight fixed queries, each running as the person asking: their tenant, their warehouses, and no price columns for roles that may not see them. Every number in the answer comes from a table shown underneath.</p>
+        </div>
+        <div class="shot"><img src="img/52-chat.png" alt="Chat answer about expiring batches and sales speed, with the source tables" loading="lazy"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid2">
+        <div class="text">
+          <div class="eyebrow">Purchasing</div>
+          <h2>Approvals by value, in order</h2>
+          <p>Above 2,000 an order needs finance; above 10,000 also the owner. Nobody approves their own order or two steps of the same one. Goods are received in part or in full, a case barcode counting a case.</p>
+        </div>
+        <div class="shot"><img src="img/31-po-approval.png" alt="Purchase order waiting for level 2 approval, level 1 approved by finance with a comment" loading="lazy"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid2 flip">
+        <div class="text">
+          <div class="eyebrow">Order-to-cash</div>
+          <h2>Confirming reserves stock; credit holds wait for finance</h2>
+          <p>A customer over their limit, or with invoices more than 30 days overdue, puts new orders on hold until finance releases them with a reason. Only reserved stock ships; each shipment is invoiced once; payments settle the oldest invoices first.</p>
+        </div>
+        <div class="shot"><img src="img/42-so-hold.png" alt="Sales order on hold with the customer's credit exposure" loading="lazy"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid2">
+        <div class="phone"><div class="shot"><img src="img/61-count-phone.png" alt="Stock count on a phone with a barcode scan box" loading="lazy"></div></div>
+        <div class="text">
+          <div class="eyebrow">Getting started</div>
+          <h2>Off the spreadsheets, onto the shelf</h2>
+          <p>Products, customers, suppliers and opening stock import from Excel: every row validated and previewed, then applied all-or-nothing. Stock counts work on a phone with a scanner or the camera; two people can count at once, and posting adjusts by counted − expected so sales during the count aren’t undone.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="proof">
+      <div class="eyebrow">Proof</div>
+      <h2>Proven by tests on a real Postgres</h2>
+      <p class="lede">63 tests run against Postgres in Docker (Testcontainers), set up exactly like production: the app connects as a role that row-level security applies to.</p>
+      <div class="cards">
+        <div class="card"><div class="num">10 / 50</div><div class="lab">parallel requests for the last 10 units succeed; stock never goes negative</div></div>
+        <div class="card"><div class="num">0</div><div class="lab">rows of another tenant visible, even to SQL with no WHERE clause</div></div>
+        <div class="card"><div class="num">1×</div><div class="lab">posting for a double click, two receivers, or two people invoicing the same shipment</div></div>
+        <div class="card"><div class="num">0</div><div class="lab">ways to edit movements, receipts, payments or the audit log, even as table owner</div></div>
+      </div>
+      <ul class="ticks" style="margin-top:22px">
+        <li>Every balance equals the sum of its movements; batch balances sum to the product balance; reservations equal the open order lines</li>
+        <li>A test fails if any table with a <code>tenant_id</code> lacks row-level security, or any row points at another tenant’s data</li>
+        <li>Module boundaries are checked on every build (NetArchTest)</li>
+        <li>Bugs the tests caught on the way: a blank page when signed out, seeding that crossed tenants, a time-zone conversion, stock cards out of order within a millisecond</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="eyebrow">Built with</div>
+      <h2>A modular monolith, chosen on fit</h2>
+      <p class="lede">ASP.NET Core and EF Core for a domain of many entities and strict rules (typed money, mature transactions and locking); Postgres for row-level security and constraints; Angular for a form-heavy internal app. One deployable: the SPA is served by the API from one origin. The reasoning, alternative by alternative, is in the repository’s plan.</p>
+      <div class="stack"><span>ASP.NET Core 10</span><span>EF Core · Npgsql</span><span>Postgres 16 · RLS</span><span>SignalR</span><span>Angular 20 · signals</span><span>Tailwind 4</span><span>QuestPDF</span><span>Groq · gpt-oss-120b · Qwen vision</span><span>xUnit · Testcontainers</span></div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    Tallyard is a portfolio project by Yodhimas Geffananda. All companies, products and people in it are fictional. · <a href="https://github.com/geffaa/tallyard">github.com/geffaa/tallyard</a>
+  </footer>
+</body>
+</html>

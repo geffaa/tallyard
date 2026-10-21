@@ -21,6 +21,7 @@ public class ArchitectureTests
         ["Purchasing"] = ["Catalog", "Warehouses", "Identity", "Partners", "Inventory"],
         ["Sales"] = ["Catalog", "Warehouses", "Identity", "Partners", "Inventory"],
         // The assistant reads across modules; nothing depends on it.
+        ["Import"] = ["Catalog", "Partners", "Inventory", "Warehouses", "Identity"],
         ["Assistant"] = ["Catalog", "Warehouses", "Identity", "Partners", "Inventory", "Purchasing", "Sales"],
     };
 

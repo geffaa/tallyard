@@ -141,10 +141,13 @@ PartnerEndpoints.Map(api);
 AuditEndpoints.Map(api);
 StockEndpoints.Map(api);
 TransferEndpoints.Map(api);
+CountEndpoints.Map(api);
 PurchasingEndpoints.Map(api);
 SalesEndpoints.Map(api);
 DocumentEndpoints.Map(api);
 ChatEndpoints.Map(api);
+DashboardEndpoints.Map(api);
+Tallyard.Api.Modules.Import.ImportEndpoints.Map(api);
 app.MapHub<StockHub>("/hubs/stock");
 api.MapGet("/health", () => Results.Ok(new { ok = true })).AllowAnonymous();
 

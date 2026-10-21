@@ -2,12 +2,16 @@
 
 **English** · [Bahasa Indonesia](README.id.md)
 
+**[▶ Watch the 2:45 demo and case study](https://geffaa.github.io/tallyard/)** · video: [`docs/tallyard-demo.mp4`](docs/tallyard-demo.mp4)
+
+[![The overview: what needs attention today, by role](docs/img/60-home.png)](https://geffaa.github.io/tallyard/)
+
 Operations software for wholesale distributors: multi-warehouse inventory, purchasing, and
 order-to-cash, with an AI layer that turns supplier documents into draft orders. It is
 deliberately not a full ERP (no general ledger, HR or payroll); it goes deep on the three flows
 where distributors lose money. Full plan: [BREAKDOWN.md](BREAKDOWN.md) (Indonesian).
 
-**Status:** milestones 1–5 of 6 done.
+**Status:** all six milestones done.
 - **Foundation:** tenants isolated by Postgres row-level security, roles and per-warehouse
   access, an append-only audit log, master data (products with pack sizes and barcodes,
   warehouses, suppliers, customers).
@@ -27,8 +31,12 @@ where distributors lose money. Full plan: [BREAKDOWN.md](BREAKDOWN.md) (Indonesi
   purchase order on a review screen beside the original; and a chat that answers questions about
   stock, purchasing and sales from fixed, permission-aware queries, showing the tables behind
   every answer.
+- **Getting started:** Excel import of products, customers, suppliers and opening stock
+  (validated by row, previewed, applied all-or-nothing); stock counts on a phone with a scanner or
+  the camera; an overview of what needs attention, by role.
 
-Next: polish (M6): Excel import, dashboard, stock counts, demo video.
+Not built (out of scope for this portfolio): accounting ledger, FIFO costing, multi-currency,
+Shopify/Odoo connectors, e-invoicing, VPS deployment.
 
 ## AI: measured, not assumed
 
@@ -119,6 +127,14 @@ Demo sign-in: workspace `harborpine`, password `tallyard123`:
 A second tenant, `northpeak` (`owner@northpeak.test`), is fully isolated. All companies and
 products are fictional.
 
+## Record the demo again
+
+With the API running on a freshly seeded database and a Groq key set:
+
+```bash
+cd demo && npm install && node record.mjs   # → demo/out/tallyard-demo.mp4 (needs ffmpeg and Chrome)
+```
+
 ## Tests
 
 ```bash
@@ -165,6 +181,10 @@ connects as a role that is not the table owner):
   `no_match` and a line whose amount doesn't add up `math`; a reviewed document becomes one draft
   order (twice is refused); warehouse staff asking the chat about receivables get "your role
   can't see this" and stock only for their warehouse.
+- **Counting and importing:** two people scanning the same shelf at once both count; posting a
+  count adjusts by counted − expected, so a sale during the count is kept; a file with errors is
+  reported by row and column and changes nothing; a clean file creates products and posts opening
+  stock through the ledger; the stock card's running balance reads in date order.
 - **No cross-tenant references:** no balance, movement, order line or rule points at another
   tenant's product, warehouse or supplier.
 - **RLS coverage:** a test fails if any table with a `tenant_id` column lacks row-level security.

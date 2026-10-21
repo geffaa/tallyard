@@ -2,12 +2,16 @@
 
 [English](README.md) · **Bahasa Indonesia**
 
+**[▶ Tonton demo 2:45 dan studi kasus](https://geffaa.github.io/tallyard/)** · video: [`docs/tallyard-demo.mp4`](docs/tallyard-demo.mp4)
+
+[![Ringkasan: yang perlu diperhatikan hari ini, per peran](docs/img/60-home.png)](https://geffaa.github.io/tallyard/)
+
 Sistem operasional untuk distributor/grosir: inventory multi-gudang, pembelian, dan
 order-to-cash, dengan lapisan AI yang mengubah dokumen supplier menjadi draft pesanan. Sengaja
 bukan ERP penuh (tanpa buku besar, HR, atau payroll); fokus mendalam di tiga alur yang paling
 sering membuat distributor rugi. Rencana lengkap: [BREAKDOWN.md](BREAKDOWN.md).
 
-**Status:** milestone 1–5 dari 6 selesai.
+**Status:** keenam milestone selesai.
 - **Fondasi:** tenant terisolasi dengan row-level security Postgres, peran dan akses per gudang,
   audit log append-only, data master (produk dengan kemasan dan barcode, gudang, supplier,
   pelanggan).
@@ -27,8 +31,12 @@ sering membuat distributor rugi. Rencana lengkap: [BREAKDOWN.md](BREAKDOWN.md).
   purchase order di layar review berdampingan dengan dokumen aslinya; dan chat yang menjawab
   pertanyaan tentang stok, pembelian, dan penjualan dari query tetap yang mengikuti hak akses,
   menampilkan tabel di balik setiap jawaban.
+- **Mulai dipakai:** import Excel untuk produk, pelanggan, supplier, dan saldo awal (divalidasi
+  per baris, dipratinjau, diterapkan all-or-nothing); stock opname di HP dengan scanner atau
+  kamera; ringkasan hal yang perlu diperhatikan, per peran.
 
-Berikutnya: polish (M6): import Excel, dashboard, stock opname, video demo.
+Tidak dibangun (di luar cakupan portfolio ini): buku besar akuntansi, FIFO, multi-mata uang,
+konektor Shopify/Odoo, e-Faktur, deploy ke VPS.
 
 ## AI: diukur, bukan diasumsikan
 

@@ -40,8 +40,9 @@ public static class ChatEndpoints
                     - Every number in your answer must come from a tool result in this conversation. If the tools can't answer, say so.
                     - Call tools as needed (you can call several), then answer in 1–4 short sentences of {lang}.
                       The rows are shown to the person as tables, so summarise; don't repeat whole tables.
-                    - Tool results show at most 15 rows; totalRows is the real count. Never count the rows yourself:
-                      say "64 products" when totalRows is 64, and name a few as examples.
+                    - Tool results list at most 15 rows. Their "count" field states the real number of rows: use it,
+                      never count the listed rows yourself. Name a few as examples.
+                    - Plain text only: no Markdown, no tables, no bullet lists.
                     - Quantities are in base units unless a unit is given. Mention the unit.
                     - If a tool says the role can't see something, tell the person that.
                     """),

@@ -114,8 +114,10 @@ public static class DemoSeeder
 
         await db.SaveChangesAsync();
         await OpeningStock(db, current, rng, whs);
-        await Purchasing(db, current, rng, whs);
+        // Sales history first (back-dated), then purchasing, whose receipts happen now: stock
+        // movements must be posted in date order for the stock card's running balance.
         await Sales(db, current, rng, whs, slug == "harborpine" ? 70 : 12);
+        await Purchasing(db, current, rng, whs);
         Console.WriteLine($"Seeded {slug}: {whs.Count} warehouses, {made} products, {suppliers} suppliers, {customers} customers");
     }
 
@@ -149,8 +151,9 @@ public static class DemoSeeder
                     changes.Add(new StockChange(p.Id, w.Id, rng.Next(2, 30) * 6, batch.Id, cost));
                 }
             }
+            // Before the sales history begins, so the stock card's running balance reads in date order.
             await ledger.PostAsync(new PostRequest(OperationKind.Adjustment, "ADJ", changes, Reason: "opening",
-                Note: "Opening balance"), default);
+                Note: "Opening balance", At: DateTimeOffset.UtcNow.AddDays(-130)), default);
         }
     }
 
@@ -292,11 +295,13 @@ public static class DemoSeeder
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         string[] methods = ["BankTransfer", "BankTransfer", "BankTransfer", "Card", "Check", "Cash"];
 
-        for (var i = 0; i < count; i++)
+        // Spread over ~120 days, more of them recent; a quarter from this week, so there is work in
+        // progress to look at. Oldest first, so stock movements are posted in date order.
+        var ages = Enumerable.Range(0, count).Select(i => i % 4 == 0 ? rng.Next(0, 7) : (int)Math.Round(Math.Pow(rng.NextDouble(), 1.6) * 120))
+            .OrderByDescending(a => a).ToList();
+        var shipmentIndex = 0;
+        foreach (var age in ages)
         {
-            // Spread over ~120 days, more of them recent.
-            // A quarter are from this week, so there is work in progress to look at.
-            var age = i % 4 == 0 ? rng.Next(0, 7) : (int)Math.Round(Math.Pow(rng.NextDouble(), 1.6) * 120);
             var customer = customers[rng.Next(customers.Count)];
             var warehouse = warehouses[rng.Next(warehouses.Count)];
             var stocked = await db.StockBalances.AsNoTracking()
@@ -333,7 +338,10 @@ public static class DemoSeeder
             if (ship.Length == 0) continue;
             // The warehouse clerk works in the first warehouse only; elsewhere the owner ships.
             var shipper = warehouse.Id == warehouses[0].Id ? Role.Warehouse : Role.Owner;
-            var shipment = await As(shipper).ShipAsync(so.Id, new ShipInput(ship, rng.NextDouble() < 0.5 ? "Own fleet" : "Midwest Freight", null, null), default);
+            // Times rise with posting order, so two shipments on one day stay in order.
+            var shippedAt = new DateTimeOffset(today.AddDays(-Math.Max(0, age - 2)).ToDateTime(new TimeOnly(8, 0).AddMinutes(5 * shipmentIndex++)), TimeSpan.Zero);
+            var shipment = await As(shipper).ShipAsync(so.Id, new ShipInput(ship, rng.NextDouble() < 0.5 ? "Own fleet" : "Midwest Freight", null, null), default,
+                shippedAt < DateTimeOffset.UtcNow ? shippedAt : DateTimeOffset.UtcNow);
             var invoice = await As(Role.Finance).InvoiceAsync(shipment.Id, today.AddDays(-Math.Max(0, age - 2)), default);
 
             // Older invoices are mostly paid; some are left overdue.
